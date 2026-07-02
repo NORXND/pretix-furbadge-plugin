@@ -1,0 +1,34 @@
+{% extends "pretix_furbadge/settings_base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-6">
+        <h1>{% trans "Furry Badges Settings" %}</h1>
+    </div>
+    <div class="col-sm-6 text-right" style="padding-top: 20px;">
+        <a href="{% url 'plugins:pretix_furbadge:type.list' organizer=request.organizer.slug event=request.event.slug %}"
+            class="btn btn-default">
+            <span class="fa fa-list"></span> {% trans "Template Management" %}
+        </a>
+        <a href="{% url 'plugins:pretix_furbadge:font.list' organizer=request.organizer.slug event=request.event.slug %}"
+            class="btn btn-default">
+            <span class="fa fa-font"></span> {% trans "Fonts Management" %}
+        </a>
+    </div>
+</div>
+
+<hr>
+
+<form action="" method="post" class="form-horizontal" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form layout="horizontal" %}
+
+    <div class="form-group submit-group">
+        <button type="submit" class="btn btn-primary btn-save">
+            {% trans "Save Settings" %}
+        </button>
+    </div>
+</form>
+{% endblock %}

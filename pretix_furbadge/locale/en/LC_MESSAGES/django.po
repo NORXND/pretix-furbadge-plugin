@@ -1,0 +1,486 @@
+# Translation of pretix_furbadge into English.
+# Copyright (C) 2026 Norbert Dudziak
+# This file is distributed under the same license as the PACKAGE package.
+# Norbert Dudziak <norbert.dudziak@norxnd.com>, 2026.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-02 12:18+0200\n"
+"PO-Revision-Date: 2026-07-02 10:00+0200\n"
+"Last-Translator: Norbert Dudziak <norbert.dudziak@norxnd.com>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\pretix_furbadge\apps.py:19
+msgid "Furry Badges!"
+msgstr "Furry Badges!"
+
+#: .\pretix_furbadge\apps.py:22
+msgid ""
+"Originally made for Futrobrzeg, Furry Badges! provides an alternative badge "
+"plugin more suited for furry conventions and events."
+msgstr ""
+"Originally made for Futrobrzeg, Furry Badges! provides an alternative badge "
+"plugin more suited for furry conventions and events."
+
+#: .\pretix_furbadge\badge_renderer.py:95
+msgid "Background PDF is required"
+msgstr "Background PDF is required"
+
+#: .\pretix_furbadge\badge_renderer.py:100
+msgid "Background PDF layout contains no readable pages."
+msgstr "Background PDF layout contains no readable pages."
+
+#: .\pretix_furbadge\badge_renderer.py:171
+msgid "Attendee"
+msgstr "Attendee"
+
+#: .\pretix_furbadge\exporter.py:38
+msgid "Badge PDFs (ZIP)"
+msgstr "Badge PDFs (ZIP)"
+
+#: .\pretix_furbadge\exporter.py:49 .\pretix_furbadge\forms.py:197
+#: .\pretix_furbadge\models.py:169
+msgid "Badge Type"
+msgstr "Badge Type"
+
+#: .\pretix_furbadge\exporter.py:51
+msgid "Leave empty to export all badge types."
+msgstr "Leave empty to export all badge types."
+
+#: .\pretix_furbadge\exporter.py:57
+msgid "Include preview overlay"
+msgstr "Include preview overlay"
+
+#: .\pretix_furbadge\exporter.py:64
+msgid "Output Format"
+msgstr "Output Format"
+
+#: .\pretix_furbadge\forms.py:50 .\pretix_furbadge\models.py:52
+msgid "Background PDF"
+msgstr "Background PDF"
+
+#: .\pretix_furbadge\forms.py:53 .\pretix_furbadge\models.py:53
+msgid "The base layer for the badge."
+msgstr "The base layer for the badge."
+
+#: .\pretix_furbadge\forms.py:56 .\pretix_furbadge\models.py:59
+msgid "Foreground PDF"
+msgstr "Foreground PDF"
+
+#: .\pretix_furbadge\forms.py:59 .\pretix_furbadge\models.py:60
+msgid "Overlay on top of the avatar and text."
+msgstr "Overlay on top of the avatar and text."
+
+#: .\pretix_furbadge\forms.py:116 .\pretix_furbadge\models.py:31
+msgid "Font File (TTF/OTF)"
+msgstr "Font File (TTF/OTF)"
+
+#: .\pretix_furbadge\forms.py:143
+msgid "This doesn't look like a valid font file."
+msgstr "This doesn't look like a valid font file."
+
+#: .\pretix_furbadge\forms.py:167
+msgid ""
+"This font uses PostScript/CFF outlines and automatic conversion to TrueType "
+"failed. Please convert it to .ttf manually before uploading."
+msgstr ""
+"This font uses PostScript/CFF outlines and automatic conversion to TrueType "
+"failed. Please convert it to .ttf manually before uploading."
+
+#: .\pretix_furbadge\forms.py:194 .\pretix_furbadge\models.py:166
+msgid "Product"
+msgstr "Product"
+
+#: .\pretix_furbadge\forms.py:222
+msgid "Allow Badge Edits"
+msgstr "Allow Badge Edits"
+
+#: .\pretix_furbadge\forms.py:223
+msgid "If enabled, attendees can edit their badge data."
+msgstr "If enabled, attendees can edit their badge data."
+
+#: .\pretix_furbadge\forms.py:227
+msgid "Badge Edit Deadline"
+msgstr "Badge Edit Deadline"
+
+#: .\pretix_furbadge\forms.py:232
+msgid "Preview Overlay PDF"
+msgstr "Preview Overlay PDF"
+
+#: .\pretix_furbadge\forms.py:233
+msgid "Global overlay watermark applied only in previews."
+msgstr "Global overlay watermark applied only in previews."
+
+#: .\pretix_furbadge\forms.py:239
+msgid "Question for Badge Nickname"
+msgstr "Question for Badge Nickname"
+
+#: .\pretix_furbadge\forms.py:243
+msgid ""
+"Select the pretix question used to pull the attendee's badge nickname. If "
+"not selected, the badge text will be an optional preference."
+msgstr ""
+"Select the pretix question used to pull the attendee's badge nickname. If "
+"not selected, the badge text will be an optional preference."
+
+#: .\pretix_furbadge\forms.py:248
+msgid "Default Avatar"
+msgstr "Default Avatar"
+
+#: .\pretix_furbadge\forms.py:250
+msgid ""
+"Default avatar image used when no custom avatar is uploaded. If not set, no "
+"avatar will be rendered."
+msgstr ""
+"Default avatar image used when no custom avatar is uploaded. If not set, no "
+"avatar will be rendered."
+
+#: .\pretix_furbadge\models.py:27
+msgid "Font Name"
+msgstr "Font Name"
+
+#: .\pretix_furbadge\models.py:32
+msgid "Upload your TTF or OTF font file."
+msgstr "Upload your TTF or OTF font file."
+
+#: .\pretix_furbadge\models.py:48
+#: .\pretix_furbadge\templates\pretix_furbadge\font_list.html:16
+#: .\pretix_furbadge\templates\pretix_furbadge\type_list.html:16
+msgid "Name"
+msgstr "Name"
+
+#: .\pretix_furbadge\models.py:68
+msgid "Font"
+msgstr "Font"
+
+#: .\pretix_furbadge\models.py:74
+msgid "Max Font Size (pt)"
+msgstr "Max Font Size (pt)"
+
+#: .\pretix_furbadge\models.py:77
+msgid "Font Color (Hex)"
+msgstr "Font Color (Hex)"
+
+#: .\pretix_furbadge\models.py:81
+msgid "Left"
+msgstr "Left"
+
+#: .\pretix_furbadge\models.py:82
+msgid "Center"
+msgstr "Center"
+
+#: .\pretix_furbadge\models.py:83
+msgid "Right"
+msgstr "Right"
+
+#: .\pretix_furbadge\models.py:89
+msgid "Text Justify"
+msgstr "Text Justify"
+
+#: .\pretix_furbadge\models.py:97
+msgid "Image Position X (mm)"
+msgstr "Image Position X (mm)"
+
+#: .\pretix_furbadge\models.py:98 .\pretix_furbadge\models.py:105
+msgid "From top-left of page."
+msgstr "From top-left of page."
+
+#: .\pretix_furbadge\models.py:104
+msgid "Image Position Y (mm)"
+msgstr "Image Position Y (mm)"
+
+#: .\pretix_furbadge\models.py:108
+msgid "Image Width (mm)"
+msgstr "Image Width (mm)"
+
+#: .\pretix_furbadge\models.py:114
+msgid "Image Height (mm)"
+msgstr "Image Height (mm)"
+
+#: .\pretix_furbadge\models.py:122
+msgid "Text Position X (mm)"
+msgstr "Text Position X (mm)"
+
+#: .\pretix_furbadge\models.py:123
+msgid "Anchor point (depends on justify)."
+msgstr "Anchor point (depends on justify)."
+
+#: .\pretix_furbadge\models.py:129
+msgid "Text Position Y (mm)"
+msgstr "Text Position Y (mm)"
+
+#: .\pretix_furbadge\models.py:130
+msgid "Baseline anchor point."
+msgstr "Baseline anchor point."
+
+#: .\pretix_furbadge\models.py:136
+msgid "Text Max Width (mm)"
+msgstr "Text Max Width (mm)"
+
+#: .\pretix_furbadge\models.py:142
+msgid "Text Max Height (mm)"
+msgstr "Text Max Height (mm)"
+
+#: .\pretix_furbadge\models.py:146
+#: .\pretix_furbadge\templates\pretix_furbadge\type_list.html:17
+msgid "Active"
+msgstr "Active"
+
+#: .\pretix_furbadge\models.py:189
+msgid "Avatar"
+msgstr "Avatar"
+
+#: .\pretix_furbadge\models.py:192
+msgid "Badge Text"
+msgstr "Badge Text"
+
+#: .\pretix_furbadge\models.py:197
+msgid "Telegram Username"
+msgstr "Telegram Username"
+
+#: .\pretix_furbadge\models.py:200
+msgid "Show me in public attendee list"
+msgstr "Show me in public attendee list"
+
+#: .\pretix_furbadge\models.py:203
+msgid "Show my Telegram in public list"
+msgstr "Show my Telegram in public list"
+
+#: .\pretix_furbadge\signals.py:38 .\pretix_furbadge\signals.py:70
+msgid "Furry Badges"
+msgstr "Furry Badges"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:6
+msgid "Edit Badge"
+msgstr "Edit Badge"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:11
+msgid "Edit your badge"
+msgstr "Edit your badge"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:12
+msgid "Configure the badge for ticket:"
+msgstr "Configure the badge for ticket:"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:16
+msgid ""
+"Badge editing is currently locked for this order. You can preview your badge "
+"but no changes can be saved."
+msgstr "Badge editing is currently locked for this order. You can preview your badge "
+"but no changes can be saved."
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:27
+msgid "1. Avatar"
+msgstr "1. Avatar"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:37
+msgid "No avatar"
+msgstr "No avatar"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:44
+msgid "Upload new avatar"
+msgstr "Upload new avatar"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:47
+msgid "You will be able to crop and adapt your image."
+msgstr "You will be able to crop and adapt your image."
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:55
+msgid "2. Badge Details"
+msgstr "2. Badge Details"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:60
+msgid "characters"
+msgstr "characters"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:70
+msgid "2. Preferences"
+msgstr "2. Preferences"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:72
+msgid "3. Preferences"
+msgstr "3. Preferences"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:106
+msgid "Back"
+msgstr "Back"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:108
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:168
+#: .\pretix_furbadge\templates\pretix_furbadge\font_delete.html:12
+#: .\pretix_furbadge\templates\pretix_furbadge\link_delete.html:12
+#: .\pretix_furbadge\templates\pretix_furbadge\type_delete.html:13
+msgid "Cancel"
+msgstr "Cancel"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:114
+msgid "Save Badge"
+msgstr "Save Badge"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:124
+msgid "Preview"
+msgstr "Preview"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:132
+msgid "Save your changes to see them in the preview."
+msgstr "Save your changes to see them in the preview."
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:144
+msgid "Large Preview"
+msgstr "Large Preview"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:160
+msgid "Crop Avatar"
+msgstr "Crop Avatar"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:169
+msgid "Crop & Upload"
+msgstr "Crop & Upload"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_delete.html:6
+msgid "Delete Font"
+msgstr "Delete Font"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_delete.html:9
+msgid "Are you sure you want to delete the font"
+msgstr "Are you sure you want to delete the font"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_delete.html:15
+#: .\pretix_furbadge\templates\pretix_furbadge\link_delete.html:15
+#: .\pretix_furbadge\templates\pretix_furbadge\type_delete.html:16
+msgid "Delete"
+msgstr "Delete"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_form.html:6
+msgid "Edit Font"
+msgstr "Edit Font"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_form.html:6
+msgid "Create Font"
+msgstr "Create Font"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_form.html:12
+#: .\pretix_furbadge\templates\pretix_furbadge\type_form.html:12
+msgid "Save"
+msgstr "Save"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_list.html:5
+#: .\pretix_furbadge\templates\pretix_furbadge\settings_base.html:13
+msgid "Fonts"
+msgstr "Fonts"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\font_list.html:9
+msgid "Upload a new font"
+msgstr "Upload a new font"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\item_form.html:5
+msgid ""
+"If you select a badge type here, this product will require attendees to "
+"provide their nickname and avatar, and generate a badge PDF."
+msgstr ""
+
+#: .\pretix_furbadge\templates\pretix_furbadge\link_delete.html:5
+msgid "Delete Product Link"
+msgstr "Delete Product Link"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\link_delete.html:8
+#, python-format
+msgid ""
+"Are you sure you want to remove the link\n"
+"        between <strong>%(item)s</strong> and <strong>%(type)s</strong>?"
+msgstr ""
+"Are you sure you want to remove the link\n"
+"        between <strong>%(item)s</strong> and <strong>%(type)s</strong>?"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\order_info.html:4
+msgid "Badges"
+msgstr "Badges"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\order_info.html:7
+msgid ""
+"Some tickets in your order include custom badges. Please configure them "
+"below."
+msgstr ""
+"Some tickets in your order include custom badges. Please configure them "
+"below."
+
+#: .\pretix_furbadge\templates\pretix_furbadge\order_info.html:13
+#, python-format
+msgid "Configure badge for %(name)s (%(item)s)"
+msgstr "Configure badge for %(name)s (%(item)s)"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\order_info.html:17
+#, python-format
+msgid "Configure badge (%(item)s)"
+msgstr "Configure badge (%(item)s)"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\settings.html:8
+msgid "Furry Badges Settings"
+msgstr "Furry Badges Settings"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\settings.html:13
+msgid "Template Management"
+msgstr "Template Management"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\settings.html:17
+msgid "Fonts Management"
+msgstr "Fonts Management"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\settings.html:30
+msgid "Save Settings"
+msgstr "Save Settings"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\settings_base.html:8
+#: .\pretix_furbadge\templates\pretix_furbadge\type_list.html:5
+msgid "Badge Types"
+msgstr "Badge Types"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\settings_base.html:18
+msgid "Settings"
+msgstr "Settings"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_delete.html:5
+msgid "Delete Badge Type"
+msgstr "Delete Badge Type"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_delete.html:8
+msgid ""
+"Are you sure you want to delete the badge type <strong>{{ name\n"
+"            }}</strong>?"
+msgstr ""
+"Are you sure you want to delete the badge type <strong>{{ name\n"
+"            }}</strong>?"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_form.html:6
+msgid "Edit Badge Type"
+msgstr "Edit Badge Type"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_form.html:6
+msgid "Create Badge Type"
+msgstr "Create Badge Type"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_list.html:9
+msgid "Create a new badge type"
+msgstr "Create a new badge type"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_list.html:29
+msgid "Yes"
+msgstr "Yes"
+
+#: .\pretix_furbadge\templates\pretix_furbadge\type_list.html:31
+msgid "No"
+msgstr "No"
+
+#: .\pretix_furbadge\views.py:415 .\pretix_furbadge\views.py:447
+msgid "Modifications are locked down or this order is unpaid."
+msgstr "Modifications are locked down or this order is unpaid."
+
+#: .\pretix_furbadge\views.py:536
+msgid "Your badge setup was updated successfully!"
+msgstr "Your badge setup was updated successfully!"

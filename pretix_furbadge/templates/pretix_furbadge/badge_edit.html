@@ -1,0 +1,177 @@
+{% extends "pretixpresale/event/base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load static %}
+
+{% block title %}{% trans "Edit Badge" %}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'pretix_furbadge/cropper.min.css' %}">
+
+<h2>{% trans "Edit your badge" %}</h2>
+<p>{% trans "Configure the badge for ticket:" %} <strong>{{ position.item.name }}</strong></p>
+
+{% if is_locked %}
+<div class="alert alert-warning">
+    {% trans "Badge editing is currently locked for this order. You can preview your badge but no changes can be saved." %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-7">
+        <form id="badge-form" method="post" action="" data-upload-url="{{ upload_url }}" data-avatar-width="{{ avatar_width|stringformat:"f" }}" data-avatar-height="{{ avatar_height|stringformat:"f" }}">
+            {% csrf_token %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{% trans "1. Avatar" %}</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="avatar-preview-container">
+                        {% if badge_data.avatar %}
+                        <img id="current-avatar" src="{{ badge_data.avatar.url }}" alt="Avatar"
+                            class="img-responsive img-thumbnail" style="max-width: 200px;">
+                        {% else %}
+                        <div id="current-avatar-placeholder"
+                            style="width: 200px; height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc;">
+                            <span class="text-muted">{% trans "No avatar" %}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <br>
+                    {% if not is_locked %}
+                    <label class="btn btn-default btn-file">
+                        {% trans "Upload new avatar" %} <input type="file" id="avatar-input"
+                            accept="image/png, image/jpeg" style="display: none;">
+                    </label>
+                    <p class="help-block">{% trans "You will be able to crop and adapt your image." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not hide_text_input %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{% trans "2. Badge Details" %}</h3>
+                </div>
+                <div class="panel-body">
+                    <fieldset {% if is_locked %}disabled{% endif %}>
+                        {% bootstrap_field form.badge_text %}
+                        <p class="help-block"><span id="char-count">0</span>/32 {% trans "characters" %}</p>
+                    </fieldset>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        {% if hide_text_input %}
+                        {% trans "2. Preferences" %}
+                        {% else %}
+                        {% trans "3. Preferences" %}
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <fieldset {% if is_locked %}disabled{% endif %}>
+                        {% bootstrap_field form.telegram_username %}
+                        {% bootstrap_field form.show_in_public_list %}
+                        {% bootstrap_field form.show_telegram_in_public_list %}
+                    </fieldset>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var showInPublic = document.getElementById('id_show_in_public_list');
+                            var showTelegram = document.getElementById('id_show_telegram_in_public_list');
+
+                            function syncTelegramCheckbox() {
+                                showTelegram.disabled = !showInPublic.checked;
+                                if (!showInPublic.checked) {
+                                    showTelegram.checked = false;
+                                }
+                            }
+
+                            showInPublic.addEventListener('change', syncTelegramCheckbox);
+                            syncTelegramCheckbox(); // run once on load to match current state
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'presale:event.order' organizer=request.organizer.slug event=request.event.slug order=order.code secret=order.secret %}"
+                        class="btn btn-secondary btn-block w-100">
+                        {% if is_locked %}
+                        {% trans "Back" %}
+                        {% else %}
+                        {% trans "Cancel" %}
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="col-md-6 text-right">
+                    {% if not is_locked %}
+                    <button type="submit" class="btn btn-primary btn-block">{% trans "Save Badge" %}</button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Preview" %}</h3>
+            </div>
+            <div class="panel-body text-center">
+                <div id="badge-preview-container" style="border: 1px solid #ccc;">
+                    <img id="badge-preview-frame" src="{{ preview_url }}?t={% now 'U' %}" width="100%"
+                        height="auto"></img>
+                </div>
+                <br>
+                <p class="help-block small">{% trans "Save your changes to see them in the preview." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="previewModalLabel">{% trans "Large Preview" %}</h4>
+            </div>
+            <div class="modal-body" style="height: 80vh;">
+                <iframe id="badge-preview-frame-large" src="{{ preview_url }}?t={% now 'U' %}" width="100%"
+                    height="100%" style="border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cropModal" tabindex="-1" role="dialog" aria-labelledby="cropModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="cropModalLabel">{% trans "Crop Avatar" %}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="img-container" style="max-height: 400px; overflow: hidden;">
+                    <img id="image-to-crop" src="" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="button" class="btn btn-primary" id="btn-crop">{% trans "Crop & Upload" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'pretix_furbadge/cropper.min.js' %}"></script>
+<script src="{% static 'pretix_furbadge/badge_edit.js' %}"></script>
+{% endblock %}

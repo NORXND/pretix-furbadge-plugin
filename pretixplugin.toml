@@ -1,0 +1,5 @@
+[plugin]
+package = "pretix-furbadge-plugin"
+modules = [ "pretix_furbadge" ]
+marketplace_name = "furbadge-plugin"
+

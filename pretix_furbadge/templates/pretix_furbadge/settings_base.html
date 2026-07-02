@@ -1,0 +1,24 @@
+{% extends "pretixcontrol/event/settings_base.html" %}
+{% load i18n %}
+
+{% block inside %}
+<ul class="nav nav-pills nav-tabs">
+    <li class="{% if " type" in request.resolver_match.url_name %}active{% endif %}">
+        <a href="{% url "plugins:pretix_furbadge:type.list" organizer=request.organizer.slug event=request.event.slug %}">
+            {% trans "Badge Types" %}
+        </a>
+    </li>
+    <li class="{% if " font" in request.resolver_match.url_name %}active{% endif %}">
+        <a href="{% url "plugins:pretix_furbadge:font.list" organizer=request.organizer.slug event=request.event.slug %}">
+            {% trans "Fonts" %}
+        </a>
+    </li>
+    <li class="{% if " plugin_settings" in request.resolver_match.url_name %}active{% endif %}">
+        <a href="{% url "plugins:pretix_furbadge:plugin_settings" organizer=request.organizer.slug event=request.event.slug %}">
+            {% trans "Settings" %}
+        </a>
+    </li>
+</ul>
+
+{% block content %}{% endblock %}
+{% endblock %}

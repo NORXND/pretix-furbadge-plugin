@@ -1,0 +1,8 @@
+{% load i18n %}
+{% load bootstrap3 %}
+<fieldset>
+    <p class="help-block">
+        {% trans "If you select a badge type here, this product will require attendees to provide their nickname and avatar, and generate a badge PDF." %}
+    </p>
+    {% bootstrap_field form.badge_type layout="horizontal" %}
+</fieldset>

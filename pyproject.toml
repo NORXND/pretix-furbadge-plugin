@@ -1,0 +1,66 @@
+[project]
+name = "pretix-furbadge-plugin"
+dynamic = ["version"]
+description = "Originally made for Futrobrzeg, Furry Badges! provides an alternative badge plugin more suited for furry conventions and events."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+keywords = ["pretix"]
+authors = [
+    {name = "Norbert Dudziak", email = "norbert.dudziak@norxnd.com"},
+]
+maintainers = [
+    {name = "Norbert Dudziak", email = "norbert.dudziak@norxnd.com"},
+]
+
+dependencies = [
+    "pypdf>=4.0",
+    "Pillow>=9.0",
+    "pdf2image>=1.16",
+    "reportlab>=4.0.0",
+    "django>=4.0",
+    "pretix>=2026.6.0",
+    "django==5.2.*",
+    "fonttools==4.63.*",
+    "otf2ttf==0.2"
+]
+
+[project.optional-dependencies]
+dev = [
+    "types-reportlab==4.5.1.*",
+    "django-stubs==6.0.*",
+    "mypy==1.10.0",
+]
+
+[project.entry-points."pretix.plugin"]
+pretix_furbadge = "pretix_furbadge:PretixPluginMeta"
+
+[project.entry-points."distutils.commands"]
+build = "pretix_plugin_build.build:CustomBuild"
+
+[build-system]
+requires = [
+    "setuptools",
+    "pretix-plugin-build",
+]
+
+[project.urls]
+homepage = "https://github.com/NORXND/pretix-furbadge-plugin"
+repository = "https://github.com/NORXND/pretix-furbadge-plugin"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pretix_furbadge.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretix*"]
+namespaces = false
+
+[[tool.mypy.overrides]]
+module = [
+    "isodate.*",
+    "pretix.*",
+    "fontTools.*",
+]
+ignore_missing_imports = true

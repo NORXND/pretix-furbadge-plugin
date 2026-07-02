@@ -1,0 +1,45 @@
+{% extends "pretix_furbadge/settings_base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% trans "Badge Types" %}</h1>
+<p>
+    <a href="{% url "plugins:pretix_furbadge:type.create" organizer=request.organizer.slug event=request.event.slug %}"
+        class="btn btn-default">
+        <i class="fa fa-plus"></i> {% trans "Create a new badge type" %}
+    </a>
+</p>
+<div class="table-responsive">
+    <table class="table table-hover table-quotas">
+        <thead>
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Active" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in badge_types %}
+            <tr>
+                <td>
+                    <strong><a href="{% url "plugins:pretix_furbadge:type.update" organizer=request.organizer.slug event=request.event.slug pk=b.id %}">{{ b.name }}</a></strong>
+                </td>
+                <td>
+                    {% if b.is_active %}
+                    <span class="label label-success">{% trans "Yes" %}</span>
+                    {% else %}
+                    <span class="label label-danger">{% trans "No" %}</span>
+                    {% endif %}
+                </td>
+                <td class="text-right">
+                    <a href="{% url "plugins:pretix_furbadge:type.update" organizer=request.organizer.slug event=request.event.slug pk=b.id %}" class="btn btn-default btn-sm"><i
+                            class="fa fa-edit"></i></a>
+                    <a href="{% url "plugins:pretix_furbadge:type.delete" organizer=request.organizer.slug event=request.event.slug pk=b.id %}" class="btn btn-danger btn-sm btn-delete"><i
+                            class="fa fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

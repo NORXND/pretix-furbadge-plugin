@@ -1,0 +1,37 @@
+{% extends "pretix_furbadge/settings_base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% trans "Fonts" %}</h1>
+<p>
+    <a href="{% url "plugins:pretix_furbadge:font.create" organizer=request.organizer.slug event=request.event.slug %}"
+        class="btn btn-default">
+        <i class="fa fa-plus"></i> {% trans "Upload a new font" %}
+    </a>
+</p>
+<div class="table-responsive">
+    <table class="table table-hover table-quotas">
+        <thead>
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in fonts %}
+            <tr>
+                <td>
+                    <strong><a href="{% url "plugins:pretix_furbadge:font.update" organizer=request.organizer.slug event=request.event.slug pk=f.id %}">{{ f.name }}</a></strong>
+                </td>
+                <td class="text-right">
+                    <a href="{% url "plugins:pretix_furbadge:font.update" organizer=request.organizer.slug event=request.event.slug pk=f.id %}" class="btn btn-default btn-sm"><i
+                            class="fa fa-edit"></i></a>
+                    <a href="{% url "plugins:pretix_furbadge:font.delete" organizer=request.organizer.slug event=request.event.slug pk=f.id %}" class="btn btn-danger btn-sm btn-delete"><i
+                            class="fa fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

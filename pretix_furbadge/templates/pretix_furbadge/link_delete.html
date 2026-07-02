@@ -1,0 +1,19 @@
+{% extends "pretix_furbadge/settings_base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% trans "Delete Product Link" %}</h1>
+<form action="" method="post" class="form-horizontal">
+    {% csrf_token %}
+    <p>{% blocktrans with item=object.item.name type=object.badge_type.name %}Are you sure you want to remove the link
+        between <strong>{{ item }}</strong> and <strong>{{ type }}</strong>?{% endblocktrans %}</p>
+    <div class="form-group submit-group">
+        <a href="{% url "plugins:pretix_furbadge:link.list" organizer=request.organizer.slug event=request.event.slug %}" class="btn btn-default btn-cancel">
+            {% trans "Cancel" %}
+        </a>
+        <button type="submit" class="btn btn-danger btn-save">
+            {% trans "Delete" %}
+        </button>
+    </div>
+</form>
+{% endblock %}

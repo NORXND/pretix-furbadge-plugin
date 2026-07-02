@@ -1,0 +1,4 @@
+recursive-include pretix_furbadge/static *
+recursive-include pretix_furbadge/templates *
+recursive-include pretix_furbadge/locale *
+include LICENSE

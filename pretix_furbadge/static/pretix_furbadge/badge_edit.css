@@ -1,0 +1,22 @@
+.img-container {
+	max-height: 400px;
+	width: 100%;
+}
+
+.avatar-preview-container {
+	text-align: center;
+	margin-bottom: 15px;
+}
+
+#current-avatar-placeholder {
+	margin: 0 auto;
+}
+
+#badge-preview-container {
+	min-height: 300px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f8f8f8;
+	border: 1px dashed #ddd;
+}
