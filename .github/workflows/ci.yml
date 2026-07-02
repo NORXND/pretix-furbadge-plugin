@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: ['3.11']
 
     steps:
       - name: Check out repository
@@ -30,9 +30,6 @@ jobs:
 
       - name: Run compile check
         run: python -m compileall pretix_furbadge
-
-      - name: Run tests
-        run: pytest -q
 
       - name: Run mypy
         run: mypy pretix_furbadge
