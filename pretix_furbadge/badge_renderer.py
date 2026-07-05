@@ -158,7 +158,7 @@ class BadgeRenderer:
 
                     path = canvas_obj.beginPath()
 
-                    path.circle(x_pt + (w_pt / 2), y_pt + (h_pt / 2), w_pt / 2)
+                    path.circle(x_pt + (w_pt / 2), y_pt + (h_pt / 2), min(w_pt, h_pt) / 2)
 
                     canvas_obj.clipPath(path, stroke=0, fill=0)
 
