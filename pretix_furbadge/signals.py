@@ -284,7 +284,7 @@ def presale_order_info_top(sender, order, request, **kwargs):
         # Attach computed string (defaults to empty string if both checks fail)
         p.computed_badge_display_name = display_name
 
-        if badge_data.has_badge:
+        if badge_data and badge_data.has_badge:
             badge_positions.append(p)
 
     telegram_enabled = bool(
