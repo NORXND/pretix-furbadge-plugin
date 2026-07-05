@@ -10,40 +10,37 @@ Admin views for all the badges stuff.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-import base64
-from django.contrib import messages
-from django.core.files.base import ContentFile
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+import logging
+from django.http import (
+    Http404,
+    HttpResponse,
+)
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
     DeleteView,
     ListView,
-    TemplateView,
     UpdateView,
     View,
 )
-from pretix.base.models import OrderPosition
+from pretix.base.models import OrderPosition, Organizer
 from pretix.control.permissions import EventPermissionRequiredMixin
 from pretix.control.views.event import (
     EventSettingsFormView,
     EventSettingsViewMixin,
-    logger,
 )
-from pretix.presale.views import EventViewMixin
 from typing_extensions import override
 
 from .badge_renderer import BadgeRenderer
 from .forms import (
-    BadgeDataForm,
     BadgeTypeForm,
     EventFontForm,
     FurbadgeSettingsForm,
+    TelegramSettingsForm,
 )
 from .models import BadgeData, BadgeType, EventFont, ProductBadgeLink
 
@@ -51,7 +48,9 @@ if TYPE_CHECKING:
     from django_stubs_ext import QuerySetAny
     from pretix.base.models import Event, Order, Organizer
 
-    from pretix_furbadge.types import OrderPositionWithBadgeData, PretixRequest
+    from pretix_furbadge.types import PretixRequest
+
+logger = logging.getLogger(__name__)
 
 
 class EventFontListView(EventPermissionRequiredMixin, ListView):
@@ -176,6 +175,36 @@ class FurbadgeSettingsView(EventSettingsViewMixin, EventSettingsFormView):
         return form
 
 
+class TelegramSettingsView(EventSettingsViewMixin, EventSettingsFormView):
+    """
+    Control panel view for configuring Telegram integration settings.
+
+    This view handles the configuration of bot credentials, OIDC client setup,
+    webhook secrets, and email forwarding preferences in the event's control panel.
+
+    See :class:`pretix_furbadge.forms.TelegramSettingsForm` for form details and
+    :func:`pretix_furbadge.views.telegram_connect_start_view` for related functionality.
+    """
+
+    model = getattr(TelegramSettingsForm, "model", None)
+    form_class = TelegramSettingsForm
+    template_name = "pretix_furbadge/telegram_settings.html"
+    permission = "can_change_event_settings"
+
+    def get_success_url(self):
+        return reverse(
+            "plugins:pretix_furbadge:telegram.settings",
+            kwargs={
+                "organizer": self.request.event.organizer.slug,
+                "event": self.request.event.slug,
+            },
+        )
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        return form
+
+
 class BadgeTypeListView(EventPermissionRequiredMixin, ListView):
     """
     Displays a list of badge types available for the current event.
@@ -289,20 +318,18 @@ class AdminBadgePreviewView(EventPermissionRequiredMixin, View):
         event: str,
         position: OrderPosition,
     ):
-        _pos = get_object_or_404(
-            OrderPosition, order__event=request.event, pk=position
-        )
+        _pos = get_object_or_404(OrderPosition, order__event=request.event, pk=position)
         include_overlay = request.GET.get("overlay", "1") == "1"
 
         try:
-            pos: OrderPositionWithBadgeData = (
-                _pos  # pyright: ignore[reportAssignmentType]
-            )
-            badge_data: BadgeData = pos.furbadge_data
+            pos = _pos
+            badge_data = pos.furbadge_data
         except BadgeData.DoesNotExist:
             raise Http404("Badge data not configured for this position.")
 
-        badge_link: ProductBadgeLink = badge_data.badge_link
+        badge_link = badge_data.badge_link
+        if not isinstance(badge_link, ProductBadgeLink):
+            raise Http404("Badge link is invalid.")
         renderer = BadgeRenderer(badge_link.badge_type)
         png_bytes = renderer.render_preview_png(
             badge_data, include_overlay=include_overlay
@@ -335,7 +362,9 @@ class AdminBadgeExportView(EventPermissionRequiredMixin, View):
         except BadgeData.DoesNotExist:
             raise Http404("Badge data not configured for this position.")
 
-        badge_link: ProductBadgeLink = badge_data.badge_link
+        badge_link = badge_data.badge_link
+        if not isinstance(badge_link, ProductBadgeLink):
+            raise Http404("Badge link is invalid.")
         renderer = BadgeRenderer(badge_link.badge_type)
         pdf_bytes = renderer.render(badge_data, include_overlay=False)
 

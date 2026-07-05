@@ -1,4 +1,7 @@
-{% load i18n %}
+{% load i18n eventurl %}
+
+{% if has_badges %}
+
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">{% trans "Badges" %}</h3>
@@ -8,7 +11,7 @@
         <ul class="list-group">
             {% for position in badge_positions %}
             <li class="list-group-item">
-                <a href="{% url 'plugins:pretix_furbadge:badge.edit' organizer=event.organizer.slug event=event.slug order=order.code secret=order.secret position=position.pk %}">
+                <a href="{% eventurl event 'plugins:pretix_furbadge:badge.edit' order=order.code secret=order.secret position=position.pk %}">
                     {% if position.computed_badge_display_name %}
                         {% blocktrans trimmed with name=position.computed_badge_display_name item=position.item.name %}
                             Configure badge for {{ name }} ({{ item }})
@@ -24,3 +27,7 @@
         </ul>
     </div>
 </div>
+
+{% endif %}
+
+{% include "pretix_furbadge/order_telegram.html" %}

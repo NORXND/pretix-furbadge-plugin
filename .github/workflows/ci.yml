@@ -31,8 +31,14 @@ jobs:
       - name: Run compile check
         run: python -m compileall pretix_furbadge
 
+      - name: Run tests
+        run: python -m pytest -q
+
       - name: Run mypy
-        run: mypy pretix_furbadge
+        run: mypy pretix_furbadge --config-file pyproject.toml
+
+      - name: Run pyright
+        run: pyright
 
       - name: Build package
         run: python -m build

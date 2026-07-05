@@ -16,6 +16,10 @@
             class="btn btn-default">
             <span class="fa fa-font"></span> {% trans "Fonts Management" %}
         </a>
+        <a href="{% url 'plugins:pretix_furbadge:telegram.settings' organizer=request.organizer.slug event=request.event.slug %}"
+            class="btn btn-default">
+            <span class="fa fa-paper-plane"></span> {% trans "Telegram Integration" %}
+        </a>
     </div>
 </div>
 

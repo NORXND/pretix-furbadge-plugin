@@ -16,7 +16,6 @@ from pretix.multidomain import event_url
 from . import frontend_views, views
 
 urlpatterns = [
-    # Control panel - Settings
     re_path(
         r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/furbadge/settings/$",
         views.FurbadgeSettingsView.as_view(),
@@ -27,7 +26,6 @@ urlpatterns = [
         views.FurbadgeSettingsView.as_view(),
         name="settings",
     ),
-    # Control panel - Badge Type CRUD
     re_path(
         r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/furbadge/types/$",
         views.BadgeTypeListView.as_view(),
@@ -48,7 +46,6 @@ urlpatterns = [
         views.BadgeTypeDeleteView.as_view(),
         name="type.delete",
     ),
-    # Control panel - EventFont CRUD
     re_path(
         r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/furbadge/fonts/$",
         views.EventFontListView.as_view(),
@@ -69,7 +66,6 @@ urlpatterns = [
         views.EventFontDeleteView.as_view(),
         name="font.delete",
     ),
-    # Control panel - Badge preview/export per order position
     re_path(
         r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/furbadge/preview/(?P<position>\d+)/$",
         views.AdminBadgePreviewView.as_view(),
@@ -80,10 +76,14 @@ urlpatterns = [
         views.AdminBadgeExportView.as_view(),
         name="admin.export",
     ),
+    re_path(
+        r"^control/event/(?P<organizer>[^/]+)/(?P<event>[^/]+)/furbadge/telegram/$",
+        views.TelegramSettingsView.as_view(),
+        name="telegram.settings",
+    ),
 ]
 
 event_patterns = [
-    # Frontend (presale) - Attendee badge editing
     event_url(
         r"^furbadge/(?P<order>[^/]+)/(?P<secret>[^/]+)/(?P<position>\d+)/$",
         frontend_views.BadgeEditView.as_view(),
@@ -103,9 +103,54 @@ event_patterns = [
         require_live=False,
     ),
     event_url(
+        r"^furbadge/telegram/connect/(?P<order>[^/]+)/(?P<secret>[^/]+)/$",
+        frontend_views.TelegramConnectStartView.as_view(),
+        name="telegram.connect.start",
+        require_live=False,
+    ),
+    event_url(
+        r"^furbadge/telegram/disconnect/(?P<order>[^/]+)/(?P<secret>[^/]+)/$",
+        frontend_views.TelegramDisconnectView.as_view(),
+        name="telegram.disconnect",
+        require_live=False,
+    ),
+    event_url(
+        r"^furbadge/telegram/connect/callback/$",
+        frontend_views.TelegramConnectCallbackView.as_view(),
+        name="telegram.connect.callback",
+        require_live=False,
+    ),
+    event_url(
         r"^furbadge/public_attendees/$",
         frontend_views.PublicAttendeeListView.as_view(),
         name="public_attendees",
         require_live=False,
+    ),
+    event_url(
+        r"^furbadge/telegram/checkout/start/$",
+        frontend_views.TelegramCheckoutStartView.as_view(),
+        name="telegram.checkout.start",
+        require_live=False,
+    ),
+    event_url(
+        r"^furbadge/telegram/checkout/callback/$",
+        frontend_views.TelegramCheckoutCallbackView.as_view(),
+        name="telegram.checkout.callback",
+        require_live=False,
+    ),
+    event_url(
+        r"^furbadge/telegram/checkout/disconnect/$",
+        frontend_views.TelegramCheckoutDisconnectView.as_view(),
+        name="telegram.checkout.disconnect",
+    ),
+    event_url(
+        r"^furbadge/telegram/preferences/(?P<order>[^/]+)/(?P<secret>[^/]+)/$",
+        frontend_views.TelegramPreferencesView.as_view(),
+        name="telegram.preferences",
+    ),
+    event_url(
+        r"^furbadge/telegram/webhook/$",
+        frontend_views.TelegramWebhookView.as_view(),
+        name="telegram.webhook",
     ),
 ]

@@ -12,7 +12,7 @@ Models for the pretix_furbadge plugin.
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from pretix.base.models import Event, Item, LoggedModel, OrderPosition
+from pretix.base.models import Event, LoggedModel, Order
 
 
 class EventFont(LoggedModel):
@@ -113,6 +113,15 @@ class BadgeType(LoggedModel):
         default=50.0,
         verbose_name=_("Image Height (mm)"),
     )
+    avatar_shape: models.CharField = models.CharField(
+        max_length=12,
+        choices=(("rect", _("Rectangle")), ("circle", _("Circle"))),
+        default="rect",
+        verbose_name=_("Avatar Shape"),
+        help_text=_(
+            "Choose whether the badge avatar is rendered as a rectangle or a circle."
+        ),
+    )
 
     # Text block constraints
     text_pos_x: models.DecimalField = models.DecimalField(
@@ -166,7 +175,11 @@ class ProductBadgeLink(LoggedModel):
         verbose_name=_("Product"),
     )  # pyright: ignore[reportAssignmentType]
     badge_type: models.ForeignKey = models.ForeignKey(
-        BadgeType, on_delete=models.CASCADE, verbose_name=_("Badge Type")
+        BadgeType,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Badge Type"),
+        null=True,
+        blank=True,
     )  # type: ignore
 
     class Meta:
@@ -181,29 +194,110 @@ class BadgeData(models.Model):
         "pretixbase.OrderPosition",
         on_delete=models.CASCADE,
         related_name="furbadge_data",
-    )  # type: ignore
+    )
     badge_link: models.ForeignKey = models.ForeignKey(
-        ProductBadgeLink, on_delete=models.PROTECT
-    )  # type: ignore
+        ProductBadgeLink,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     avatar: models.ImageField = models.ImageField(
         upload_to="furbadge/avatars/", blank=True, null=True, verbose_name=_("Avatar")
     )
     badge_text: models.CharField = models.CharField(
         max_length=32, blank=True, verbose_name=_("Badge Text")
     )
-
-    # Preferences
-    telegram_username: models.CharField = models.CharField(
-        max_length=64, blank=True, verbose_name=_("Telegram Username")
-    )
     show_in_public_list: models.BooleanField = models.BooleanField(
         default=False, verbose_name=_("Show me in public attendee list")
     )
-    show_telegram_in_public_list: models.BooleanField = models.BooleanField(
-        default=False, verbose_name=_("Show my Telegram in public list")
-    )
-
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Badge for {self.order_position}"
+
+    @property
+    def has_badge(self):
+        return self.badge_link is not None and self.badge_link.badge_type is not None
+
+
+class TelegramIdentity(LoggedModel):
+    """
+    One row per real Telegram user, per event.
+    This model stores the linkage between a Telegram identity and orders across multiple events under one event.
+    """
+
+    event: models.ForeignKey[Event] = models.ForeignKey(
+        Event,
+        related_name="telegram_identities",
+        on_delete=models.CASCADE,
+    )
+    telegram_user_id: models.CharField = models.CharField(max_length=64, db_index=True)
+    chat_id: models.CharField = models.CharField(max_length=64, null=True, blank=True)
+    username: models.CharField = models.CharField(max_length=64, null=True, blank=True)
+    first_name: models.CharField = models.CharField(
+        max_length=128, null=True, blank=True
+    )
+
+    bot_access_granted: models.BooleanField = models.BooleanField(default=False)
+    consent_given: models.BooleanField = models.BooleanField(default=False)
+    consent_given_at: models.DateTimeField = models.DateTimeField(null=True, blank=True)
+
+    created: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+    last_modified: models.DateTimeField = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["event", "telegram_user_id"],
+                name="unique_telegram_identity_per_event",
+            )
+        ]
+
+    def __str__(self):
+        return f"TelegramIdentity({self.telegram_user_id}, {self.event})"
+
+
+class TelegramOrderLink(LoggedModel):
+    """
+    An identity can connect more than one order (they bought >1 ticket).
+    This creates a many-to-many relationship between identities and orders.
+    """
+
+    identity: models.ForeignKey[TelegramIdentity] = models.ForeignKey(
+        TelegramIdentity, related_name="order_links", on_delete=models.CASCADE
+    )
+    event: models.ForeignKey[Event] = models.ForeignKey(
+        Event,
+        related_name="event_links",
+        on_delete=models.CASCADE,
+    )
+    order: models.ForeignKey[Order] = models.ForeignKey(
+        Order, related_name="telegram_links", on_delete=models.CASCADE
+    )
+    public_share: models.BooleanField = models.BooleanField(
+        default=False, verbose_name=_("Show my Telegram in public list")
+    )
+    telegram_delivery_mode: models.CharField = models.CharField(
+        max_length=18,
+        default="email_and_telegram",
+        choices=(
+            ("email_only", _("Email only")),
+            ("email_and_telegram", _("Email and Telegram")),
+            ("telegram_only", _("Telegram only")),
+        ),
+        verbose_name=_("Telegram email delivery"),
+        help_text=_(
+            "Choose how outgoing emails should be delivered when this order is connected to Telegram."
+        ),
+    )
+    created: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["identity", "order"], name="unique_identity_order_link"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.identity} -> {self.order}"

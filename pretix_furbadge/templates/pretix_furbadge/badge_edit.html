@@ -24,7 +24,7 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "1. Avatar" %}</h3>
+                    <h3 class="panel-title">{% trans "Avatar" %}</h3>
                 </div>
                 <div class="panel-body">
                     <div class="avatar-preview-container">
@@ -52,7 +52,7 @@
             {% if not hide_text_input %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{% trans "2. Badge Details" %}</h3>
+                    <h3 class="panel-title">{% trans "Badge Details" %}</h3>
                 </div>
                 <div class="panel-body">
                     <fieldset {% if is_locked %}disabled{% endif %}>
@@ -62,41 +62,6 @@
                 </div>
             </div>
             {% endif %}
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        {% if hide_text_input %}
-                        {% trans "2. Preferences" %}
-                        {% else %}
-                        {% trans "3. Preferences" %}
-                        {% endif %}
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    <fieldset {% if is_locked %}disabled{% endif %}>
-                        {% bootstrap_field form.telegram_username %}
-                        {% bootstrap_field form.show_in_public_list %}
-                        {% bootstrap_field form.show_telegram_in_public_list %}
-                    </fieldset>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            var showInPublic = document.getElementById('id_show_in_public_list');
-                            var showTelegram = document.getElementById('id_show_telegram_in_public_list');
-
-                            function syncTelegramCheckbox() {
-                                showTelegram.disabled = !showInPublic.checked;
-                                if (!showInPublic.checked) {
-                                    showTelegram.checked = false;
-                                }
-                            }
-
-                            showInPublic.addEventListener('change', syncTelegramCheckbox);
-                            syncTelegramCheckbox(); // run once on load to match current state
-                        });
-                    </script>
-                </div>
-            </div>
 
             <div class="row">
                 <div class="col-md-6">
