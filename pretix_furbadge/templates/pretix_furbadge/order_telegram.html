@@ -51,7 +51,7 @@
 </div>
 
 {% if telegram_linked %}
-  <div id="telegram-config" data-config-email="{{ telegram_email }}"></div>
+  <div id="telegram-config" data-config-email="{{ telegram_email }}" data-config-nomail="{{ no_email }}"></div>
   <script src="{% static 'pretix_furbadge/order_tg_manage.js' %}"></script>
 {% else %}
   <script src="{% static 'pretix_furbadge/order_tg_connect.js' %}"></script>

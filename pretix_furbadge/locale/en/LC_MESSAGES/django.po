@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-05 10:10+0200\n"
+"POT-Creation-Date: 2026-07-05 12:21+0200\n"
 "PO-Revision-Date: 2026-07-05 10:15+0200\n"
 "Last-Translator: Norbert Dudziak <norbert.dudziak@norxnd.com>\n"
 "Language: en\n"
@@ -331,24 +331,23 @@ msgstr "Consent checkbox text"
 msgid "Text displayed next to the consent checkbox on the order page."
 msgstr "Text displayed next to the consent checkbox on the order page."
 
-#: .\pretix_furbadge\forms.py:440 .\pretix_furbadge\forms.py:446
-#: .\pretix_furbadge\models.py:286
-msgid "Telegram only"
-msgstr "Telegram only"
-
-#: .\pretix_furbadge\forms.py:444 .\pretix_furbadge\models.py:284
+#: .\pretix_furbadge\forms.py:446 .\pretix_furbadge\models.py:284
 msgid "Email only"
 msgstr "Email only"
 
-#: .\pretix_furbadge\forms.py:445 .\pretix_furbadge\models.py:285
+#: .\pretix_furbadge\forms.py:447 .\pretix_furbadge\models.py:285
 msgid "Email and Telegram"
 msgstr "Email and Telegram"
 
-#: .\pretix_furbadge\forms.py:454
+#: .\pretix_furbadge\forms.py:448 .\pretix_furbadge\models.py:286
+msgid "Telegram only"
+msgstr "Telegram only"
+
+#: .\pretix_furbadge\forms.py:456
 msgid "Without an email address, only Telegram delivery is available."
 msgstr "Without an email address, only Telegram delivery is available."
 
-#: .\pretix_furbadge\frontend_views.py:805
+#: .\pretix_furbadge\frontend_views.py:819
 msgid ""
 "You haven't connected Telegram to an order yet — use the \"Connect "
 "Telegram\" button on your order page."
@@ -356,7 +355,7 @@ msgstr ""
 "You haven't connected Telegram to an order yet — use the \"Connect "
 "Telegram\" button on your order page."
 
-#: .\pretix_furbadge\frontend_views.py:813
+#: .\pretix_furbadge\frontend_views.py:827
 msgid "Unknown command. Try /help."
 msgstr "Unknown command. Try /help."
 

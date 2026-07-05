@@ -435,10 +435,12 @@ class TelegramPreferencesForm(forms.ModelForm):
         self.no_email = no_email
         super().__init__(*args, **kwargs)
 
+        # Get the current value from the instance
+        current_value = self.instance.telegram_delivery_mode if self.instance else None
+
         if no_email:
-            self.fields["telegram_delivery_mode"].choices = [
-                ("telegram_only", _("Telegram only")),
-            ]
+            self.fields["telegram_delivery_mode"].initial = "telegram_only"
+            self.fields["telegram_delivery_mode"].widget.attrs["disabled"] = "disabled"
         else:
             self.fields["telegram_delivery_mode"].choices = [
                 ("email_only", _("Email only")),
@@ -455,6 +457,9 @@ class TelegramPreferencesForm(forms.ModelForm):
             )
 
         return mode
+
+    def clean_public_share(self):
+        return self.cleaned_data.get("public_share", False)
 
     class Meta:
         model = TelegramOrderLink

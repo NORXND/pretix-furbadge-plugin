@@ -620,6 +620,19 @@ class PublicAttendeeListView(EventViewMixin, TemplateView):
                 "order_type": item_id,
             }
 
+            # Show telegram?
+            if bd.order_position and bd.order_position.order:
+                # Evaluate the prefetched query set in memory
+                active_link = next(
+                    (
+                        link for link in bd.order_position.order.telegram_links.all()
+                        if link.public_share
+                    ),
+                    None
+                )
+                if active_link and active_link.identity.username:
+                    data["telegram"] = active_link.identity.username
+
             results.append(data)
 
         return JsonResponse({"attendees": results}, **response_kwargs)
