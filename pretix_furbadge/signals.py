@@ -379,7 +379,7 @@ def on_event_email(sender, message, order=None, **kwargs):
                 chat_id=link.identity.chat_id or link.identity.telegram_user_id,
                 subject=message.subject or "(no subject)",
                 body=message.body or "",
-                event=sender.event,
+                event=sender,
             )
     except Exception:
         logger.exception("Failed to forward event email to Telegram")
