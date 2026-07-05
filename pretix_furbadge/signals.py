@@ -594,7 +594,7 @@ def link_telegram_on_order_placed(sender, order, **kwargs):
     if not order.email:
         # Buyer left it blank, relying on Telegram — fill the dummy now,
         # after the fact, rather than ever having pre-filled the form.
-        order.email = "none@well-known.pretix.eu"
+        order.email = settings.PRETIX_EMAIL_NONE_VALUE
         order.save(update_fields=["email"])
 
     identity, _ = TelegramIdentity.objects.get_or_create(
