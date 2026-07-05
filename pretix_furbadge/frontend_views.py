@@ -213,7 +213,6 @@ class TelegramConnectStartView(TelegramOrderMixin, View):
             eventreverse(
                 event,
                 "plugins:pretix_furbadge:telegram.connect.callback",
-                kwargs={"event": event.slug},
             )
         )
         params = {
