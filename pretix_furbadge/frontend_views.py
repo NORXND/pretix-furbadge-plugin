@@ -729,22 +729,20 @@ class TelegramCheckoutCallbackView(EventViewMixin, View):
 
         telegram_user_id = str(claims["id"])
 
-        telegram_user_id = str(claims["id"])
-
         pretix_cart_session = cart_session(request)
-        pretix_cart_session["furbadge_telegram_checkout"] = { # pyright: ignore[reportOptionalSubscript]
-                "verified": True,
-                "telegram_user_id": telegram_user_id,
-                "username": claims.get("preferred_username"),
-                "first_name": claims.get("given_name") or claims.get("name"),
-                "chat_id": telegram_user_id,
-            }
+        pretix_cart_session["furbadge_telegram_checkout"] = {  # pyright: ignore[reportOptionalSubscript]
+            "verified": True,
+            "telegram_user_id": telegram_user_id,
+            "username": claims.get("preferred_username"),
+            "first_name": claims.get("given_name") or claims.get("name"),
+            "chat_id": telegram_user_id,
+        }
 
         return_url = reverse(
             "presale:event.checkout",
             kwargs={
-                "organizer": request.event.organizer,
-                "event": request.event,
+                "organizer": request.event.organizer.slug,
+                "event": request.event.slug,
                 "step": "contact",
             },
         )
