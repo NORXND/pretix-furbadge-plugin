@@ -214,7 +214,7 @@ def add_telegram_info(sender, order, **kwargs):
     safe_username = ""
 
     if link:
-        username = link.identity.username or link.identity.first_name or ""
+        username = link.identity.username or ""
         safe_username = escape(username)
 
     request = kwargs.get("request")
@@ -306,7 +306,7 @@ def presale_order_info_top(sender, order, request, **kwargs):
         if link:
             telegram_linked = True
             telegram_link_instance = link
-            telegram_username = link.identity.username or link.identity.first_name or ""
+            telegram_username = link.identity.username or ""
             badge_data = BadgeData.objects.filter(order_position__order=order).first()
             telegram_public_share = bool(
                 getattr(badge_data, "show_telegram_in_public_list", False)
