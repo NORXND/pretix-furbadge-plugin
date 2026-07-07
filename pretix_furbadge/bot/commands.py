@@ -336,6 +336,7 @@ def handle_help(event, identity, chat_id, args, request):
 
 
 COMMANDS = {
+    "start": handle_help,
     "shop": handle_shop,
     "orders": handle_orders_list,
     "order": handle_order,
