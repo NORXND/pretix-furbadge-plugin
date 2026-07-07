@@ -395,15 +395,19 @@ class TelegramLoginPromptWidget(forms.Widget):
 
 
     def render(self, name, value, attrs=None, renderer=None):
+        from django.utils.html import escape
+
         if self.already_linked:
             tg_name = self.username or "Unknown User"
             if self.first_name:
                 tg_name = f"{self.first_name} ({tg_name})"
 
+            tg_name = escape(tg_name)
+
             # Keep translations outside of f-strings
             message1 = _("Connected via Telegram as %(name)s.") % {"name": tg_name}
             message2 = _('Not you? <a href="%(url)s">Disconnect</a>.') % {
-                "url": self.disconnect_url
+                "url": escape(self.disconnect_url or "")
             }
 
             return mark_safe(
@@ -415,7 +419,7 @@ class TelegramLoginPromptWidget(forms.Widget):
         # Keep translations outside of f-strings
         prompt = _(
             'or <a href="%(url)s">connect via Telegram</a> to make email optional'
-        ) % {"url": self.connect_url}
+        ) % {"url": escape(self.connect_url)}
 
         return mark_safe(
             '<div class="furbadge-telegram-inline-prompt">' f"{prompt}" "</div>"
