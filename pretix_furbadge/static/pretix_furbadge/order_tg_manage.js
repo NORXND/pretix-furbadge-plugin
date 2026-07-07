@@ -12,19 +12,16 @@
     var telegramEmail = document.getElementById('telegram-config').getAttribute('data-config-email');
     var noEmailTelegram = document.getElementById('telegram-config').getAttribute('data-config-nomail') === 'True';
 
-    // Handle the "Email" cleanup
+    // Handle the dummy email cleanup (don't rely on translated label text)
     var dts = dl.getElementsByTagName('dt');
     for (var i = 0; i < dts.length; i++) {
         var dt = dts[i];
         var dd = dt.nextElementSibling; // Get the corresponding <dd>
 
-        if (dt.textContent.trim() === 'Email' && dd) {
-            if (dd.textContent.trim() === telegramEmail) {
-                // Remove the <dt> and the <dd>
-                dt.style.display = 'none';
-                dd.style.display = 'none';
-                noEmailTelegram = true;
-            }
+        if (dd && dd.textContent.trim() === telegramEmail) {
+            dt.style.display = 'none';
+            dd.style.display = 'none';
+            noEmailTelegram = true;
         }
     }
 
