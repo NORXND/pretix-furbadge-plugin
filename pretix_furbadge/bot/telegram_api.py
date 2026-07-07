@@ -30,9 +30,10 @@ def auto_linkify(text):
 
         # Add protocol wrapper if it's just a raw 'www.' link
         href = raw_url if raw_url.lower().startswith("http") else f"https://{raw_url}"
+        safe_href = html.escape(href, quote=True)
 
         # Return the safe HTML anchor tag wrapping the cleanly escaped display URL
-        return f'<a href="{href}">{url}</a>'
+        return f'<a href="{safe_href}">{url}</a>'
 
     # Safe regex substitution over the clean text
     return URL_REGEX.sub(replace_url, escaped_text)
