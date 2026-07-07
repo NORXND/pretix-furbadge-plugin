@@ -330,6 +330,8 @@ class AdminBadgePreviewView(EventPermissionRequiredMixin, View):
         badge_link = badge_data.badge_link
         if not isinstance(badge_link, ProductBadgeLink):
             raise Http404("Badge link is invalid.")
+        if badge_link.badge_type is None:
+            raise Http404("Badge type not configured for this link.")
         renderer = BadgeRenderer(badge_link.badge_type)
         png_bytes = renderer.render_preview_png(
             badge_data, include_overlay=include_overlay
@@ -365,6 +367,8 @@ class AdminBadgeExportView(EventPermissionRequiredMixin, View):
         badge_link = badge_data.badge_link
         if not isinstance(badge_link, ProductBadgeLink):
             raise Http404("Badge link is invalid.")
+        if badge_link.badge_type is None:
+             raise Http404("Badge type not configured for this link.")
         renderer = BadgeRenderer(badge_link.badge_type)
         pdf_bytes = renderer.render(badge_data, include_overlay=False)
 

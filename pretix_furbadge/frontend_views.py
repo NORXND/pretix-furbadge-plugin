@@ -692,6 +692,10 @@ class TelegramCheckoutCallbackView(EventViewMixin, View):
 
     def get(self, request, *args, **kwargs):
         session_data = request.session.pop(SESSION_KEY, None)
+        if request.GET.get("error"):
+            return HttpResponseBadRequest(
+                f"Telegram login failed: {request.GET['error']}"
+            )
         if (
             not session_data
             or request.GET.get("state") != session_data.get("state")
