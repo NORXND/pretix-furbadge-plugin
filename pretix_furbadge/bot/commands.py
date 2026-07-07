@@ -179,9 +179,9 @@ def handle_badge(event, identity, chat_id, args, request):
         position = positions[n - 1]
 
     if not position:
-        # Fallback: search globally across the event
-        order = Order.objects.filter(event=event, code__iexact=code_part).first()
-        if order:
+        # Allow lookup by code, but only within the user's connected orders
+        order_ids = _numbered_orders(identity)
+        order = Order.objects.filter(pk__in=order_ids, code__iexact=code_part).first()
             badge_positions = list(
                 OrderPosition.objects.filter(
                     order=order, id__in=BadgeData.objects.values("order_position_id")
