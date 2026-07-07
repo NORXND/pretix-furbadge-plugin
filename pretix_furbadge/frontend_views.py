@@ -685,15 +685,16 @@ class TelegramCheckoutCallbackView(EventViewMixin, View):
     
     def get(self, request, *args, **kwargs):
         session_data = request.session.pop(SESSION_KEY, None)
+        if request.GET.get("error"):
+            return HttpResponseBadRequest(
+                f"Telegram login failed: {request.GET['error']}"
+            )
         if (
             not session_data
             or request.GET.get("state") != session_data.get("state")
             or session_data.get("event_pk") != request.event.id
         ):
             return HttpResponseBadRequest("Invalid or expired Telegram login attempt")
-            return HttpResponseBadRequest(
-                f"Telegram login failed: {request.GET['error']}"
-            )
 
         client_id = request.event.settings.get(
             "furbadge_telegram_client_id", as_type=str
