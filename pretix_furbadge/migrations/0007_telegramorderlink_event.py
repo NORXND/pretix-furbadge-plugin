@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='telegramorderlink',
             name='event',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='event_links', to='pretixbase.event'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='event_links', to='pretixbase.event'),
             preserve_default=False,
         ),
     ]
