@@ -17,11 +17,11 @@ dependencies = [
     "Pillow>=9.0",
     "pdf2image>=1.16",
     "reportlab>=4.0.0",
-    "django>=4.0",
     "pretix>=2026.6.0",
     "django==5.2.*",
     "fonttools==4.63.*",
-    "otf2ttf==0.2"
+    "otf2ttf==0.2",
+    "segno==1.6.6",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +29,10 @@ dev = [
     "types-reportlab==4.5.1.*",
     "django-stubs==6.0.*",
     "mypy==1.10.0",
+    "pyright>=1.1.360",
+    "pytest>=8.0.0",
+    "pytest-django>=4.12.0",
+    "build>=1.5.0",
 ]
 
 [project.entry-points."pretix.plugin"]
@@ -62,5 +66,20 @@ module = [
     "isodate.*",
     "pretix.*",
     "fontTools.*",
+    "django_scopes.*",
+    "requests",
 ]
 ignore_missing_imports = true
+follow_imports = "skip"
+
+[tool.pyright]
+include = ["pretix_furbadge"]
+exclude = ["build", ".venv", ".git", "tests"]
+typeCheckingMode = "basic"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
+reportAttributeAccessIssue = "none"
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+reportArgumentType = "none"
+reportAssignmentType = "none"

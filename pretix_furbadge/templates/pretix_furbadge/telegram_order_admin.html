@@ -1,0 +1,58 @@
+{% load i18n eventurl %}
+{% load static %}
+{% load bootstrap3 %}
+{% load eventurl %}
+<div class="row">
+    <div class="col-md-6">
+        {% if telegram_linked %}
+            <form method="post" action="{% eventurl event "plugins:pretix_furbadge:telegram.preferences" order=order.code secret=order.secret %}">
+                {% csrf_token %}
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Telegram
+                        </h3>
+                    </div>
+
+                    <div class="panel-body">
+                        <p>
+                            <a class="label label-info" href="https://t.me/{{ safe_username }}" target="_blank"
+                                style="margin-right: 5px;">
+                                <i class="fa fa-telegram"></i> @{{ safe_username }}
+                            </a>
+
+                            <a href="{% url "plugins:pretix_furbadge:telegram.disconnect" organizer=event.organizer.slug event=event.slug order=order.code secret=order.secret %}"
+                                class="btn btn-danger btn-xs" onclick="return confirm('{% trans "Are you sure you want to disconnect your Telegram account?" %}');">
+                                <i class="fa fa-unlink"></i> {% trans "Disconnect"%}
+                            </a>
+                        </p>
+
+                        {% bootstrap_form telegram_preference_form layout="horizontal" %}
+
+                        {% if no_email %}
+                        {% bootstrap_form telegram_email_addition_form layout="horizontal" %}
+                        {% endif %}
+                    </div>
+
+                    <div class="panel-footer text-right">
+                        {% bootstrap_button _("Save preferences") button_type="submit" button_class="btn-primary" %}
+                    </div>
+                </div>
+            </form>
+            <div id="telegram-config" data-config-nomail="{{ no_email }}"></div>
+            <script src="{% static 'pretix_furbadge/order_tg_manage_admin.js' %}"></script>
+        {% else %}
+            <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Telegram
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>{% trans "This user has no Telegram connected" %}</p>
+                    </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

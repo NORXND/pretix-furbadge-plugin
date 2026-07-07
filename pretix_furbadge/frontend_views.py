@@ -10,20 +10,97 @@ Same as pretix_furbadge.views, but for the presale frontend views.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
-from typing import TYPE_CHECKING, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
 
 import base64
+import hashlib
+import json
+import jwt
+import logging
+import requests  # type: ignore[import-untyped]
+import secrets
+from django.conf import settings
 from django.core.files.base import ContentFile, File
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+    JsonResponse,
+)
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 from isodate import parse_datetime
 from pretix.base.models import Event, Order, OrderPosition
 from pretix.presale.views import EventViewMixin, eventreverse
+from pretix.presale.views.cart import (
+    cart_session,
+)
+
+from pretix_furbadge.bot.commands import COMMANDS, get_identity
 
 from .badge_renderer import BadgeRenderer
-from .forms import BadgeDataForm
-from .models import BadgeData, ProductBadgeLink
+from .bot.telegram_api import tg_send_message
+from .forms import BadgeDataForm, TelegramOrderEmailAddition, TelegramPreferencesForm
+from .models import BadgeData, ProductBadgeLink, TelegramIdentity, TelegramOrderLink
+
+TELEGRAM_AUTHORIZE_URL = "https://oauth.telegram.org/auth"
+TELEGRAM_TOKEN_URL = "https://oauth.telegram.org/token"
+TELEGRAM_JWKS_URL = "https://oauth.telegram.org/.well-known/jwks.json"
+SESSION_KEY = "furbadge_tg_connect"
+
+
+def _question_answer_is_true(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if value is None:
+        return False
+    text = str(value).strip().lower()
+    return text in {
+        "1",
+        "true",
+        "yes",
+        "y",
+        "on",
+        "enabled",
+        "show",
+        "public",
+        "publicly",
+    }
+
+
+def _badge_is_publicly_listed(badge_data: BadgeData, event: Event) -> bool:
+    public_question_id = event.settings.get(
+        "furbadge_public_list_question", as_type=int
+    )
+    if public_question_id and badge_data.order_position:
+        answer = badge_data.order_position.answers.filter(
+            question_id=public_question_id
+        ).first()
+        if answer and answer.answer is not None:
+            return _question_answer_is_true(answer.answer)
+    return bool(badge_data.show_in_public_list)
+
+
+def _pkce_pair():
+    verifier = base64.urlsafe_b64encode(secrets.token_bytes(40)).rstrip(b"=").decode()
+    challenge = (
+        base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest())
+        .rstrip(b"=")
+        .decode()
+    )
+    return verifier, challenge
+
 
 if TYPE_CHECKING:
     from pretix_furbadge.types import PretixRequest
@@ -43,7 +120,7 @@ class BadgePresaleMixin(EventViewMixin, BadgePresaleMixinBase):
     Mixin for presale frontend views that handle badge editing, previewing, and avatar uploads.
     """
 
-    def dispatch(self, request, *args, **kwargs) -> "HttpResponse":
+    def dispatch(self, request: Any, *args: Any, **kwargs: Any) -> "HttpResponse":
         self.order = get_object_or_404(
             Order, event=request.event, code=kwargs.get("order")
         )
@@ -73,10 +150,14 @@ class BadgePresaleMixin(EventViewMixin, BadgePresaleMixinBase):
         allow_edits = request.event.settings.get("furbadge_allow_edits", as_type=bool)
 
         deadline = request.event.settings.get("furbadge_edit_deadline")
-        if deadline and isinstance(deadline, str):
-            deadline = parse_datetime(deadline)
 
-        self.is_locked = not allow_edits or (now() > deadline)
+        if deadline is not None:
+            if deadline and isinstance(deadline, str):
+                deadline = parse_datetime(deadline)
+
+            self.is_locked = not allow_edits or (now() > deadline)
+        else:
+            self.is_locked = not allow_edits
 
         if self.order.status != Order.STATUS_PAID:
             self.is_locked = True
@@ -90,6 +171,236 @@ class BadgePresaleMixin(EventViewMixin, BadgePresaleMixinBase):
             )
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class TelegramOrderMixin(EventViewMixin):
+    """
+    Helper mixin for managing view with orders.
+    """
+
+    def dispatch(self, request: Any, *args: Any, **kwargs: Any):
+        self.order = get_object_or_404(
+            Order, event=request.event, code=kwargs.get("order")
+        )
+        if self.order.secret != kwargs.get("secret"):
+            raise Http404("Unknown order")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class TelegramConnectStartView(TelegramOrderMixin, View):
+    """
+    This is a view that redirects user to Telegram's OAuth2 authorization endpoint to initiate the connection process.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("consent") != "1":
+            return HttpResponseBadRequest("Consent checkbox must be checked")
+
+        event = request.event
+        if not event.settings.get("furbadge_telegram_enabled", as_type=bool):
+            return HttpResponseBadRequest("Telegram integration disabled")
+
+        verifier, challenge = _pkce_pair()
+        state = secrets.token_urlsafe(24)
+        request.session[SESSION_KEY] = {
+            "state": state,
+            "verifier": verifier,
+            "order_pk": self.order.pk,
+            "event_slug": event.slug,
+        }
+
+        client_id = event.settings.get("furbadge_telegram_client_id", as_type=str)
+        callback_uri = request.build_absolute_uri(
+            eventreverse(
+                event,
+                "plugins:pretix_furbadge:telegram.connect.callback",
+            )
+        )
+        params = {
+            "client_id": client_id,
+            "redirect_uri": callback_uri,
+            "response_type": "code",
+            "scope": "openid profile telegram:bot_access",
+            "state": state,
+            "code_challenge": challenge,
+            "code_challenge_method": "S256",
+        }
+        query = "&".join(
+            f"{k}={requests.utils.quote(str(v))}" for k, v in params.items()
+        )
+        return HttpResponseRedirect(f"{TELEGRAM_AUTHORIZE_URL}?{query}")
+
+
+class TelegramDisconnectView(TelegramOrderMixin, View):
+    """
+    This is a view that disconnects a Telegram identity from an order. It deletes the corresponding TelegramOrderLink.
+    """
+
+    def get(self, request, *args, **kwargs):
+        link = TelegramOrderLink.objects.filter(
+            order=self.order, event=request.event
+        ).first()
+
+        if link:
+            link.delete()
+
+        url = eventreverse(
+            request.event,
+            "presale:event.order",
+            kwargs={
+                "order": self.order.code,
+                "secret": self.order.secret,
+            },
+        )
+        return HttpResponseRedirect(url)
+
+
+class TelegramConnectCallbackView(EventViewMixin, View):
+    """
+    This is the view called FROM Telegram on user login - it links the account to the order.
+    """
+
+    def get(self, request, *args, **kwargs):
+        session_data = request.session.pop(SESSION_KEY, None)
+        if not session_data:
+            return HttpResponseBadRequest("No pending Telegram connection")
+        if request.GET.get("state") != session_data["state"]:
+            return HttpResponseBadRequest("State mismatch")
+        if request.GET.get("error"):
+            return HttpResponseBadRequest(
+                f"Telegram login failed: {request.GET['error']}"
+            )
+
+        client_id = request.event.settings.get(
+            "furbadge_telegram_client_id", as_type=str
+        )
+        client_secret = request.event.settings.get(
+            "furbadge_telegram_client_secret", as_type=str
+        )
+        callback_uri = request.build_absolute_uri(
+            eventreverse(
+                request.event,
+                "plugins:pretix_furbadge:telegram.connect.callback",
+                kwargs={
+                    "event": request.event.slug,
+                },
+            )
+        )
+
+        basic = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+        token_resp = requests.post(
+            TELEGRAM_TOKEN_URL,
+            headers={"Authorization": f"Basic {basic}"},
+            data={
+                "grant_type": "authorization_code",
+                "code": request.GET.get("code"),
+                "redirect_uri": callback_uri,
+                "client_id": client_id,
+                "code_verifier": session_data["verifier"],
+            },
+            timeout=10,
+        )
+        token_resp.raise_for_status()
+        id_token = token_resp.json()["id_token"]
+
+        signing_key = jwt.PyJWKClient(TELEGRAM_JWKS_URL).get_signing_key_from_jwt(
+            id_token
+        )
+        claims = jwt.decode(
+            id_token,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=client_id,
+            issuer="https://oauth.telegram.org",
+            leeway=60,
+        )
+
+        telegram_user_id = str(claims["id"])
+        if session_data.get("event_slug") != request.event.slug:
+            return HttpResponseBadRequest("Event mismatch")
+        order = get_object_or_404(
+            Order, pk=session_data["order_pk"], event=request.event
+        )
+
+        identity, _created = TelegramIdentity.objects.get_or_create(
+            event=order.event,
+            telegram_user_id=telegram_user_id,
+        )
+        identity.username = claims.get("preferred_username")
+        identity.first_name = claims.get("given_name") or claims.get("name")
+        identity.chat_id = telegram_user_id
+        identity.bot_access_granted = True
+        identity.consent_given = True
+        identity.consent_given_at = timezone.now()
+        identity.save()
+
+        TelegramOrderLink.objects.get_or_create(
+            identity=identity, order=order, event=order.event
+        )
+
+        url = eventreverse(
+            request.event,
+            "presale:event.order",
+            kwargs={
+                "order": order.code,
+                "secret": order.secret,
+            },
+        )
+
+        return HttpResponseRedirect(url)
+
+
+class TelegramPreferencesView(EventViewMixin, View):
+    """
+    This view allows to update the telegram preferences.
+    """
+
+    def post(self, request: PretixRequest, *args, **kwargs) -> HttpResponse:
+        order = get_object_or_404(
+            Order,
+            event=request.event,
+            code=kwargs["order"],
+        )
+
+        if order.secret != kwargs["secret"]:
+            raise Http404("Unknown order")
+
+        link = get_object_or_404(TelegramOrderLink, order=order)
+
+        no_email = not order.email or order.email == settings.PRETIX_EMAIL_NONE_VALUE
+
+        preference_form = TelegramPreferencesForm(
+            request.POST,
+            instance=link,
+            no_email=no_email,
+        )
+
+        email_form = None
+        if no_email:
+            email_form = TelegramOrderEmailAddition(
+                request.POST,
+                instance=order,
+            )
+
+        if preference_form.is_valid():
+            preference_form.save(commit=True)
+
+        if email_form:
+            if email_form.is_valid():
+                email_form.save(commit=True)
+
+        return HttpResponseRedirect(
+            eventreverse(
+                request.event,
+                "presale:event.order",
+                kwargs={
+                    "organizer": request.event.organizer.slug,
+                    "event": request.event.slug,
+                    "order": order.code,
+                    "secret": order.secret,
+                },
+            )
+        )
 
 
 class BadgeEditView(BadgePresaleMixin, TemplateView):
@@ -135,6 +446,15 @@ class BadgeEditView(BadgePresaleMixin, TemplateView):
                 "position": self.position.pk,
             },
         )
+        has_telegram_link = TelegramOrderLink.objects.filter(order=self.order).exists()
+        ctx["has_telegram_link"] = has_telegram_link
+        badge_data = self.badge_data
+        ctx["telegram_public_share"] = bool(
+            getattr(badge_data, "show_telegram_in_public_list", False)
+            if badge_data is not None
+            else False
+        )
+
         ctx["upload_url"] = eventreverse(
             event,
             "plugins:pretix_furbadge:badge.upload",
@@ -163,15 +483,6 @@ class BadgeEditView(BadgePresaleMixin, TemplateView):
             if nickname_question_id:
                 instance.badge_text = self.badge_data.badge_text
             instance.save()
-
-            url = eventreverse(
-                event,
-                "presale:event.order",
-                kwargs={
-                    "order": self.order.code,
-                    "secret": self.order.secret,
-                },
-            )
 
             ctx = self.get_context_data()
             return self.render_to_response(ctx)
@@ -275,7 +586,6 @@ class PublicAttendeeListView(EventViewMixin, TemplateView):
         badges = (
             BadgeData.objects.filter(
                 order_position__order__event=event,
-                show_in_public_list=True,
                 order_position__order__status=Order.STATUS_PAID,
             )
             .select_related(
@@ -287,6 +597,8 @@ class PublicAttendeeListView(EventViewMixin, TemplateView):
 
         results = []
         for bd in badges:
+            if not _badge_is_publicly_listed(bd, event):
+                continue
             item_id = str(bd.order_position.item.id) if bd.order_position.item else ""
 
             # Determine Nickname fallback logic hierarchy
@@ -315,9 +627,230 @@ class PublicAttendeeListView(EventViewMixin, TemplateView):
                 "order_type": item_id,
             }
 
-            if bd.show_telegram_in_public_list and hasattr(bd, "telegram_username"):
-                data["telegram_username"] = bd.telegram_username
+            # Show telegram?
+            if bd.order_position and bd.order_position.order:
+                # Evaluate the prefetched query set in memory
+                active_link = next(
+                    (
+                        link
+                        for link in bd.order_position.order.telegram_links.all()
+                        if link.public_share
+                    ),
+                    None,
+                )
+                if active_link and active_link.identity.username:
+                    data["telegram"] = active_link.identity.username
 
             results.append(data)
 
         return JsonResponse({"attendees": results}, **response_kwargs)
+
+
+class TelegramCheckoutStartView(EventViewMixin, View):
+    """Same PKCE/OAuth mechanics as TelegramConnectStartView, but stores
+    the result against the cart session instead of an existing Order,
+    since no Order exists yet at this point in checkout."""
+
+    def get(self, request, *args, **kwargs):
+        event = request.event
+        verifier, challenge = _pkce_pair()
+        state = secrets.token_urlsafe(24)
+        request.session[SESSION_KEY] = {
+            "state": state,
+            "verifier": verifier,
+            "event_pk": event.id,
+            "checkout_flow": True,
+        }
+        client_id = event.settings.get("furbadge_telegram_client_id", as_type=str)
+        callback_uri = request.build_absolute_uri(
+            reverse(
+                "plugins:pretix_furbadge:telegram.checkout.callback",
+                kwargs={
+                    "organizer": event.organizer.slug,
+                    "event": event.slug,
+                },
+            )
+        )
+        params = {
+            "client_id": client_id,
+            "redirect_uri": callback_uri,
+            "response_type": "code",
+            "scope": "openid profile telegram:bot_access",
+            "state": state,
+            "code_challenge": challenge,
+            "code_challenge_method": "S256",
+        }
+        query = "&".join(f"{k}={requests.utils.quote(v)}" for k, v in params.items())
+        return HttpResponseRedirect(f"{TELEGRAM_AUTHORIZE_URL}?{query}")
+
+
+class TelegramCheckoutCallbackView(EventViewMixin, View):
+    """
+    Same as TelegramConnectCallbackView, but stores the result against the cart session instead of an existing Order,
+    since no Order exists yet at this point in checkout.
+    """
+
+    def get(self, request, *args, **kwargs):
+        session_data = request.session.pop(SESSION_KEY, None)
+        if request.GET.get("error"):
+            return HttpResponseBadRequest(
+                f"Telegram login failed: {request.GET['error']}"
+            )
+        if (
+            not session_data
+            or request.GET.get("state") != session_data.get("state")
+            or session_data.get("event_pk") != request.event.id
+        ):
+            logging.getLogger(__name__).exception(
+                f"Telegram login failed: {request.GET['error']}"
+            )
+            return HttpResponseBadRequest("Invalid or expired Telegram login attempt")
+
+        client_id = request.event.settings.get(
+            "furbadge_telegram_client_id", as_type=str
+        )
+        client_secret = request.event.settings.get(
+            "furbadge_telegram_client_secret", as_type=str
+        )
+        callback_uri = request.build_absolute_uri(request.path)
+        basic = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+
+        data = {
+            "grant_type": "authorization_code",
+            "code": request.GET.get("code"),
+            "redirect_uri": callback_uri,
+            "client_id": client_id,
+            "code_verifier": session_data["verifier"],
+        }
+
+        token_resp = requests.post(
+            TELEGRAM_TOKEN_URL,
+            headers={"Authorization": f"Basic {basic}"},
+            data=data,
+            timeout=10,
+        )
+        token_resp.raise_for_status()
+        id_token = token_resp.json()["id_token"]
+
+        jwks_client = jwt.PyJWKClient(TELEGRAM_JWKS_URL)
+        signing_key = jwks_client.get_signing_key_from_jwt(id_token)
+        claims = jwt.decode(
+            id_token,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=client_id,
+            issuer="https://oauth.telegram.org",
+            leeway=60,
+        )
+
+        telegram_user_id = str(claims["id"])
+
+        pretix_cart_session = cart_session(request, True)
+        pretix_cart_session["furbadge_telegram_checkout"] = ( # pyright: ignore[reportOptionalSubscript]
+            {
+                "verified": True,
+                "telegram_user_id": telegram_user_id,
+                "username": claims.get("preferred_username"),
+                "first_name": claims.get("given_name") or claims.get("name"),
+                "chat_id": telegram_user_id,
+            }
+        )
+
+        return_url = reverse(
+            "presale:event.checkout",
+            kwargs={
+                "organizer": request.event.organizer.slug,
+                "event": request.event.slug,
+                "step": "contact",
+            },
+        )
+
+        return redirect(return_url)
+
+
+class TelegramCheckoutDisconnectView(View):
+    """
+    Same as TelegramDisconnectView, but removes the Telegram connection from the cart session instead of an existing Order,
+    since no Order exists yet at this point in checkout.
+    """
+
+    def get(self, request, *args, **kwargs):
+        pretix_cart_session = cart_session(request, True)
+        pretix_cart_session["furbadge_telegram_checkout"] = ( # pyright: ignore[reportOptionalSubscript]
+            {}
+        )
+
+        event = request.event
+        return_url = reverse(
+            "presale:event.checkout",
+            kwargs={
+                "organizer": event.organizer.slug,
+                "event": event.slug,
+                "step": "questions",
+            },
+        )
+        return HttpResponseRedirect(return_url)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class TelegramWebhookView(EventViewMixin, View):
+    """
+    Webhook endpoint for receiving Telegram bot updates. This view processes incoming messages and commands from users,
+    linking them to their orders if applicable.
+    """
+
+    def post(self, request, *args, **kwargs):
+        event = request.event
+        if not event:
+            return HttpResponseForbidden()
+
+        expected_secret = event.settings.get(
+            "furbadge_telegram_webhook_secret", as_type=str
+        )
+        if request.headers.get("X-Telegram-Bot-Api-Secret-Token") != expected_secret:
+            return HttpResponseForbidden()
+
+        try:
+            update = json.loads(request.body)
+        except json.JSONDecodeError:
+            return HttpResponse(status=400)
+
+        message = update.get("message")
+        if not message or "text" not in message:
+            return HttpResponse(status=200)
+
+        chat_id = message["chat"]["id"]
+        from_id = str(message["from"]["id"])
+        text = message["text"].strip()
+        if not text.startswith("/"):
+            return HttpResponse(status=200)
+
+        parts = text.split()
+        command = parts[0].lstrip("/").split("@")[0].lower()
+        args = parts[1:]
+
+        identity = get_identity(event, from_id)
+        if not identity and command != "start":
+            tg_send_message(
+                chat_id,
+                _(
+                    "You haven't connected Telegram to an order yet — "
+                    'use the "Connect Telegram" button on your order page.'
+                ),
+                event=event,
+            )
+            return HttpResponse(status=200)
+
+        handler = COMMANDS.get(command)
+        if not handler:
+            tg_send_message(chat_id, _("Unknown command. Try /help."), event=event)
+            return HttpResponse(status=200)
+
+        try:
+            handler(event, identity, chat_id, args, request)
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Error handling Telegram command %s from %s", command, from_id
+            )
+
+        return HttpResponse(status=200)

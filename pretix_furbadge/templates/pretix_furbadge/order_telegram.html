@@ -1,0 +1,60 @@
+{% load i18n eventurl %}
+{% load static %}
+{% load bootstrap3 %}
+{% if telegram_enabled %}
+<div class="furbadge-telegram-connect panel panel-default" data-islinked="{{ telegram_linked }}" data-username="{{ telegram_username }}">
+  <div class="panel-heading">
+    <h3 class="panel-title">{% trans "Telegram" %}</h3>
+  </div>
+  <div class="panel-body">
+    {% if telegram_linked %}
+      <p>{% trans "This order is connected to Telegram as" %} @{{ telegram_username }}</p>
+      <br>
+      {% if telegram_candisconnect %}
+        <p>{% trans "You can disconnect your Telegram account from this order if you want to. You will be able to access your order and will receive all further information via email." %}</p>
+        <a class="btn btn-default" href="{{ telegram_disconnect_url }}">{% trans "Disconnect Telegram" %}</a>
+      {% else %}
+        <p>{% trans "If you want to disconnect your Telegram account, you will have to provide an email address for this order." %}</p>
+      {% endif %}
+      <br>
+
+      <hr>
+
+
+      <form method="post" action="{% url "plugins:pretix_furbadge:telegram.preferences" organizer=request.event.organizer.slug event=request.event.slug order=order.code secret=order.secret %}">
+          {% csrf_token %}
+
+          {% bootstrap_form telegram_preference_form layout="horizontal" %}
+
+          {% if no_email %}
+              {% bootstrap_form telegram_email_addition_form layout="horizontal" %}
+          {% endif %}
+
+          <button class="btn btn-primary btn-save" type="submit">
+            {% trans "Save" %}
+          </button>
+      </form>
+    {% else %}
+      <p>{{ telegram_consent_text }}</p>
+      <label>
+        <input type="checkbox" id="furbadge-tg-consent" />
+        {% trans "I agree" %}
+      </label>
+      <br/>
+      <a id="furbadge-tg-connect-btn"
+         class="btn btn-default disabled"
+         href="{{ telegram_connect_url }}">
+        {% trans "Connect Telegram" %}
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% if telegram_linked %}
+  <div id="telegram-config" data-config-email="{{ telegram_email }}" data-config-nomail="{{ no_email }}"></div>
+  <script src="{% static 'pretix_furbadge/order_tg_manage.js' %}"></script>
+{% else %}
+  <script src="{% static 'pretix_furbadge/order_tg_connect.js' %}"></script>
+{% endif %}
+{% else %}
+{% endif %}

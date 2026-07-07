@@ -11,11 +11,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.14']
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gettext \
+            poppler-utils \
+            build-essential
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,8 +39,14 @@ jobs:
       - name: Run compile check
         run: python -m compileall pretix_furbadge
 
+      - name: Run tests
+        run: python -m pytest -q
+
       - name: Run mypy
-        run: mypy pretix_furbadge
+        run: mypy pretix_furbadge --config-file pyproject.toml
+
+      - name: Run pyright
+        run: pyright
 
       - name: Build package
         run: python -m build

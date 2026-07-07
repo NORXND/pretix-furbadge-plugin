@@ -31,7 +31,7 @@ class PluginApp(PluginConfig):
         name = gettext_lazy("Furry Badges!")
         author = "Norbert Dudziak"
         description = gettext_lazy(
-            "Originally made for Futrobrzeg, Furry Badges! provides an alternative badge plugin more suited for furry conventions and events."
+            "Badge templates for pretix with configurable avatar layouts, circular avatar rendering, and Telegram integration support."
         )
         visible = True
         version = __version__
@@ -47,3 +47,16 @@ class PluginApp(PluginConfig):
 
         settings_hierarkey.add_default("furbadge_allow_edits", "1", bool)
         settings_hierarkey.add_default("furbadge_edit_deadline", None, type(None))
+        settings_hierarkey.add_default("furbadge_telegram_enabled", False, bool)
+        settings_hierarkey.add_default("furbadge_telegram_bot_token", "", str)
+        settings_hierarkey.add_default("furbadge_telegram_bot_username", "", str)
+        settings_hierarkey.add_default("furbadge_telegram_client_id", "", str)
+        settings_hierarkey.add_default("furbadge_telegram_client_secret", "", str)
+        settings_hierarkey.add_default("furbadge_telegram_webhook_secret", "", str)
+        settings_hierarkey.add_default(
+            "furbadge_telegram_consent_text",
+            (
+                "I agree to share my Telegram username and order status with the organizer's Telegram bot."
+            ),
+            str,
+        )

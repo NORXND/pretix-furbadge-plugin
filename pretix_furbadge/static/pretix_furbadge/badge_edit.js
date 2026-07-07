@@ -83,8 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const avatarWidth = Number(form.dataset.avatarWidth);
         const avatarHeight = Number(form.dataset.avatarHeight);
 
-        console.log(avatarWidth, avatarHeight);
-
         if (typeof Cropper !== "undefined") {
             cropper = new Cropper(imageToCrop, {
                 aspectRatio: avatarWidth / avatarHeight,

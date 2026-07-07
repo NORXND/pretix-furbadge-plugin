@@ -10,6 +10,8 @@ The core of the plugin - the badge renderer.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from typing import Any, cast
+
 import io
 import logging
 import os
@@ -139,7 +141,7 @@ class BadgeRenderer:
 
                 w_pt = float(self.badge_type.image_width) * mm
                 h_pt = float(self.badge_type.image_height) * mm
-                
+
                 x_top_left = float(self.badge_type.image_pos_x) - (
                     float(self.badge_type.image_width) / 2
                 )
@@ -150,9 +152,24 @@ class BadgeRenderer:
                 x_pt = x_top_left * mm
                 y_pt = page_height - (y_top_left * mm) - h_pt
 
-                c.drawImage(
-                    draw_source, x_pt, y_pt, width=w_pt, height=h_pt, mask="auto"
-                )
+                if self.badge_type.avatar_shape == "circle":
+                    canvas_obj = cast(Any, c)
+                    canvas_obj.saveState()
+
+                    path = canvas_obj.beginPath()
+
+                    path.circle(x_pt + (w_pt / 2), y_pt + (h_pt / 2), min(w_pt, h_pt) / 2)
+
+                    canvas_obj.clipPath(path, stroke=0, fill=0)
+
+                    canvas_obj.drawImage(
+                        draw_source, x_pt, y_pt, width=w_pt, height=h_pt, mask="auto"
+                    )
+                    canvas_obj.restoreState()
+                else:
+                    c.drawImage(
+                        draw_source, x_pt, y_pt, width=w_pt, height=h_pt, mask="auto"
+                    )
             except Exception:
                 logger.exception("Could not draw badge avatar image, skipping")
 

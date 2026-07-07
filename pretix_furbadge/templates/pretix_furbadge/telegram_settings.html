@@ -1,0 +1,24 @@
+{% extends "pretix_furbadge/settings_base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-6">
+        <h1>{% trans "Telegram Settings" %}</h1>
+    </div>
+</div>
+
+<hr>
+
+<form action="" method="post" class="form-horizontal" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form layout="horizontal" %}
+
+    <div class="form-group submit-group">
+        <button type="submit" class="btn btn-primary btn-save">
+            {% trans "Save Settings" %}
+        </button>
+    </div>
+</form>
+{% endblock %}
