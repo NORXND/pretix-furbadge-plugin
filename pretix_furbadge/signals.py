@@ -356,36 +356,6 @@ def presale_order_info_top(sender, order, request, **kwargs):
     )
 
 
-@receiver(email_filter, dispatch_uid="furbadge_telegram_email_filter")
-def on_event_email(sender, message, order=None, **kwargs):
-    """
-    Email filter that forwards event-related emails to the user's linked Telegram account if they have opted in.
-    This allows users to receive notifications via Telegram in addition to email.
-    """
-    try:
-        if order is None:
-            return message
-        links = TelegramOrderLink.objects.filter(order=order).select_related("identity")
-        for link in links:
-            delivery_mode = (
-                getattr(link, "telegram_delivery_mode", "email_only")
-                if link
-                else "email_only"
-            )
-            if delivery_mode == "email_only":
-                continue
-
-            send_telegram_notification(
-                chat_id=link.identity.chat_id or link.identity.telegram_user_id,
-                subject=message.subject or "(no subject)",
-                body=message.body or "",
-                event=sender,
-            )
-    except Exception:
-        logger.exception("Failed to forward event email to Telegram")
-    return message
-
-
 @receiver(global_email_filter, dispatch_uid="furbadge_telegram_global_email_filter")
 def on_global_email(sender, message, order=None, **kwargs):
     """
@@ -411,6 +381,9 @@ def on_global_email(sender, message, order=None, **kwargs):
                 body=message.body or "",
                 event=order.event,
             )
+
+            if delivery_mode == "telegram_only":
+                return None  # Prevent email from being sent if the user opted for Telegram only
     except Exception:
         logger.exception("Failed to forward global email to Telegram")
     return message
@@ -451,7 +424,7 @@ def telegram_contact_field(sender, request, **kwargs):
     Adds the Telegram login prompt field to the contact form during checkout.
     This allows users to connect their Telegram account during the checkout process.
     """
-    
+
     if not sender.settings.get("furbadge_telegram_enabled", as_type=bool):
         return {}
 

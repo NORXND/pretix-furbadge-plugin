@@ -393,23 +393,32 @@ class TelegramLoginPromptWidget(forms.Widget):
         self.first_name = first_name
         super().__init__(*args, **kwargs)
 
+
     def render(self, name, value, attrs=None, renderer=None):
         if self.already_linked:
             tg_name = self.username or "Unknown User"
             if self.first_name:
                 tg_name = f"{self.first_name} ({tg_name})"
 
+            # Keep translations outside of f-strings
+            message1 = _("Connected via Telegram as %(name)s.") % {"name": tg_name}
+            message2 = _('Not you? <a href="%(url)s">Disconnect</a>.') % {
+                "url": self.disconnect_url
+            }
+
             return mark_safe(
                 '<div class="furbadge-telegram-inline-prompt text-muted">'
-                f"{_('Connected via Telegram as %(name)s.') % {'name': tg_name}} "
-                f"{_('Not you? <a href=\"%(url)s\">Disconnect</a>.') % {'url': self.disconnect_url}}"
+                f"{message1} {message2}"
                 "</div>"
             )
 
+        # Keep translations outside of f-strings
+        prompt = _(
+            'or <a href="%(url)s">connect via Telegram</a> to make email optional'
+        ) % {"url": self.connect_url}
+
         return mark_safe(
-            f'<div class="furbadge-telegram-inline-prompt">'
-            f"{_('or <a href=\"%(url)s\">connect via Telegram</a> to make email optional') % {'url': self.connect_url}}"
-            f"</div>"
+            '<div class="furbadge-telegram-inline-prompt">' f"{prompt}" "</div>"
         )
 
     def value_from_datadict(self, data, files, name):

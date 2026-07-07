@@ -4,7 +4,6 @@ from django.utils.translation import gettext as _
 from pretix.base.models import Order, OrderPosition
 from pretix.presale.views import eventreverse
 import segno
-import segno
 
 from ..models import BadgeData, TelegramIdentity
 from .telegram_api import tg_send_document, tg_send_message, tg_send_web_app_button
@@ -84,9 +83,9 @@ def handle_orders_list(event, identity, chat_id, args, request):
         if oid in orders
     ]
 
-    message = _("Your orders:\n{orders}\n\nUse /order <number> to open one.").format(
-        orders="\n".join(lines)
-    )
+    message = _(
+        "Your orders:\n{orders}\n\nUse /order <number or ID> to open one."
+    ).format(orders="\n".join(lines))
     tg_send_message(chat_id, message, event=event)
 
 
@@ -94,42 +93,49 @@ def handle_order(event, identity, chat_id, args, request):
     if not args:
         return handle_orders_list(event, identity, chat_id, args, request)
 
-    order_ids = _numbered_orders(identity)
-    if not order_ids:
-        tg_send_message(chat_id, _("You have no connected orders yet."), event=event)
-        return
+    arg = args[0].strip().upper()
 
-    n = _parse_index(args[0], len(order_ids))
-    if n is None:
+    # Clean the input in case they prefixed it with the event slug
+    code_query = arg
+
+    order_ids = _numbered_orders(identity)
+    n = _parse_index(arg, len(order_ids) if order_ids else 0)
+    order = None
+
+    if n is not None:
+        # Treat as an index from the user's connected list
+        order_pk = order_ids[n - 1]
+        order = Order.objects.filter(pk=order_pk).first()
+
+    if not order:
+        # Fallback: bypass the connected list and search the event globally
+        order = Order.objects.filter(event=event, code__iexact=code_query).first()
+
+    if not order:
         tg_send_message(
             chat_id,
-            _("Invalid order number. Use /orders to see the list."),
+            _("Invalid order number or ID. Use /orders to see the list."),
             event=event,
         )
         return
 
-    try:
-        order = Order.objects.get(pk=order_ids[n - 1])
+    url = eventreverse(
+        request.event,
+        "presale:event.order",
+        kwargs={
+            "order": order.code,
+            "secret": order.secret,
+        },
+    )
 
-        url = eventreverse(
-            request.event,
-            "presale:event.order",
-            kwargs={
-                "order": order.code,
-                "secret": order.secret,
-            },
-        )
+    full_url = request.build_absolute_uri(url)
 
-        full_url = request.build_absolute_uri(url)
-
-        tg_send_web_app_button(
-            chat_id,
-            full_url,
-            _("Manage order {order_code}").format(order_code=order.code),
-            event=event,
-        )
-    except Order.DoesNotExist:
-        tg_send_message(chat_id, _("Order could not be found."), event=event)
+    tg_send_web_app_button(
+        chat_id,
+        full_url,
+        _("Manage order {order_code}").format(order_code=order.code),
+        event=event,
+    )
 
 
 def handle_badges_list(event, identity, chat_id, args, request):
@@ -144,9 +150,9 @@ def handle_badges_list(event, identity, chat_id, args, request):
         for i, p in enumerate(positions, start=1)
     ]
 
-    message = _("Your badges:\n{badges}\n\nUse /badge <number> to edit one.").format(
-        badges="\n".join(lines)
-    )
+    message = _(
+        "Your badges:\n{badges}\n\nUse /badge <number or Order ID> to edit one."
+    ).format(badges="\n".join(lines))
     tg_send_message(chat_id, message, event=event)
 
 
@@ -154,21 +160,60 @@ def handle_badge(event, identity, chat_id, args, request):
     if not args:
         return handle_badges_list(event, identity, chat_id, args, request)
 
-    positions = _numbered_badges(identity)
-    if not positions:
-        tg_send_message(chat_id, _("You have no badges."), event=event)
-        return
+    arg = args[0].strip().upper()
 
-    n = _parse_index(args[0], len(positions))
-    if n is None:
+    # Clean event slug from input if present
+    search_arg = arg
+    if event and event.slug and search_arg.startswith(f"{event.slug.upper()}-"):
+        search_arg = search_arg[len(event.slug) + 1 :]
+
+    # Separate code from possible position ID (e.g., ABCDE-1)
+    code_part = search_arg.split("-")[0]
+    pos_part = search_arg.split("-")[1] if "-" in search_arg else None
+
+    positions = _numbered_badges(identity)
+    n = _parse_index(arg, len(positions) if positions else 0)
+    position = None
+
+    if n is not None:
+        # Treat as an index from the user's connected list
+        position = positions[n - 1]
+
+    if not position:
+        # Fallback: search globally across the event
+        order = Order.objects.filter(event=event, code__iexact=code_part).first()
+        if order:
+            badge_positions = list(
+                OrderPosition.objects.filter(
+                    order=order, id__in=BadgeData.objects.values("order_position_id")
+                )
+            )
+
+            if len(badge_positions) == 1:
+                position = badge_positions[0]
+            elif len(badge_positions) > 1:
+                if pos_part:
+                    for p in badge_positions:
+                        if str(p.positionid) == pos_part:
+                            position = p
+                            break
+                if not position:
+                    tg_send_message(
+                        chat_id,
+                        _(
+                            "Order {order_code} has multiple badges. Please specify the badge (e.g., {order_code}-1)."
+                        ).format(order_code=code_part),
+                        event=event,
+                    )
+                    return
+
+    if not position:
         tg_send_message(
             chat_id,
-            _("Invalid badge number. Use /badges to see the list."),
+            _("Invalid badge number or Order ID. Use /badges to see the list."),
             event=event,
         )
         return
-
-    position = positions[n - 1]
 
     url = eventreverse(
         request.event,
@@ -182,7 +227,6 @@ def handle_badge(event, identity, chat_id, args, request):
 
     full_url = request.build_absolute_uri(url)
 
-    # Replaced the developer placeholder with a helpful user-facing message
     tg_send_web_app_button(
         chat_id,
         full_url,
@@ -197,22 +241,29 @@ def handle_qr(event, identity, chat_id, args, request):
     if not args:
         return handle_orders_list(event, identity, chat_id, args, request)
 
+    arg = args[0].strip().upper()
+
+    code_query = arg
+    if event and event.slug and code_query.startswith(f"{event.slug.upper()}-"):
+        code_query = code_query[len(event.slug) + 1 :]
+
     order_ids = _numbered_orders(identity)
-    if not order_ids:
-        tg_send_message(chat_id, _("You have no connected orders yet."), event=event)
-        return
+    n = _parse_index(arg, len(order_ids) if order_ids else 0)
+    order = None
 
-    n = _parse_index(args[0], len(order_ids))
-    if n is None:
+    if n is not None:
+        order_pk = order_ids[n - 1]
+        order = Order.objects.filter(pk=order_pk).first()
+
+    if not order:
+        order = Order.objects.filter(event=event, code__iexact=code_query).first()
+
+    if not order:
         tg_send_message(
-            chat_id, _("Invalid number. Use /orders to see the list."), event=event
+            chat_id,
+            _("Invalid number or Order ID. Use /orders to see the list."),
+            event=event,
         )
-        return
-
-    try:
-        order = Order.objects.get(pk=order_ids[n - 1])
-    except Order.DoesNotExist:
-        tg_send_message(chat_id, _("Order could not be found."), event=event)
         return
 
     # Check if tickets/downloads are allowed yet
@@ -229,7 +280,6 @@ def handle_qr(event, identity, chat_id, args, request):
         return
 
     try:
-        # Fetch the individual ticket positions belonging to this order
         positions = order.positions.filter()
         if not positions.exists():
             tg_send_message(
@@ -244,20 +294,14 @@ def handle_qr(event, identity, chat_id, args, request):
             if not qr_text:
                 continue
 
-            # Generate the QR Code layout using Segno
             qr = segno.make(qr_text, error="M")
-
-            # Write the PNG into an in-memory byte stream
             out = io.BytesIO()
-            # scale=6 creates a clean, crisp image suitable for scanning from phones
             qr.save(out, kind="png", scale=12)
             out.seek(0)
 
             photo_content = out.getvalue()
             filename = f"ticket_qr_{order.code}_{position.positionid}.png"
 
-            # Route directly through your existing tg_send_document function.
-            # Passing 'image/png' flags Telegram to show this visually as a photo grid card.
             tg_send_document(
                 chat_id=chat_id,
                 filename=filename,
@@ -284,10 +328,10 @@ def handle_help(event, identity, chat_id, args, request):
     help_text = _(
         "/shop — open the shop\n"
         "/orders — list your orders\n"
-        "/order <n> — manage an order\n"
+        "/order <n or ID> — manage an order\n"
         "/badges — list your badges\n"
-        "/badge <n> — edit a badge\n"
-        "/qr <n> — get the ticket/QR for an order"
+        "/badge <n or ID> — edit a badge\n"
+        "/qr <n or ID> — get the ticket/QR for an order"
     )
     tg_send_message(chat_id, help_text, event=event)
 

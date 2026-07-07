@@ -29,7 +29,7 @@ Originally made for [Futrobrzeg](https://futrobrzeg.pl) organized by [Seaside Pa
   - Connecting Telegram identities to orders from the order page
   - Forwarding outgoing emails to connected Telegram users
   - Basic bot commands for orders, badges, and QR delivery
-  - Webhook-based bot handling for organizer-scoped bots
+  - Webhook-based bot handling for event-scoped bots
 
 ## Installation
 

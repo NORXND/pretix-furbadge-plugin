@@ -61,7 +61,6 @@ def tg_send_message(chat_id, text, event=None, parse_mode="HTML", **kwargs):
         )
         response.raise_for_status()
     except requests.RequestException as e:
-        # Check if Telegram returned an error message in the body
         error_details = getattr(e.response, "text", "")
         logger.error(
             f"Failed to send Telegram message to {chat_id}: {e}. Details: {error_details}"
@@ -113,9 +112,6 @@ def tg_send_photo(
         "parse_mode": parse_mode,
     }
     if caption:
-        data["data"] = data.update({"caption": caption}) or data.get(
-            "caption"
-        )  # safe update pattern
         data["caption"] = caption
 
     try:
@@ -134,13 +130,17 @@ def tg_send_photo(
         )
 
 
-def tg_send_web_app_button(chat_id, url, label, event=None):
+def tg_send_web_app_button(chat_id, url, label, event=None, parse_mode="HTML"):
     """
-    Sends a message containing an inline Web App button.
+    Sends a message containing an inline Web App button. Sanitizes text and label strings.
     """
+    # Run the descriptive label through the linkifier to catch any raw characters (<, >, &)
+    button_label = auto_linkify(label) if parse_mode == "HTML" else label
+
     payload = {
         "chat_id": chat_id,
-        "text": label,  # Usually, the text above a button doesn't need HTML, but you can add it if needed
+        "text": button_label,
+        "parse_mode": parse_mode,
         "reply_markup": {
             "inline_keyboard": [[{"text": label, "web_app": {"url": url}}]]
         },
@@ -154,4 +154,7 @@ def tg_send_web_app_button(chat_id, url, label, event=None):
         )
         response.raise_for_status()
     except requests.RequestException as e:
-        logger.error(f"Failed to send Web App button to {chat_id}: {e}")
+        error_details = getattr(e.response, "text", "")
+        logger.error(
+            f"Failed to send Web App button to {chat_id}: {e}. Details: {error_details}"
+        )

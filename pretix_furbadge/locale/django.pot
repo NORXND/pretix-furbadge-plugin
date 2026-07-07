@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-05 12:21+0200\n"
+"POT-Creation-Date: 2026-07-07 09:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,15 +39,15 @@ msgstr ""
 msgid "Attendee"
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:61
+#: .\pretix_furbadge\bot\commands.py:60
 msgid "The shop is currently unavailable."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:71
+#: .\pretix_furbadge\bot\commands.py:70
 msgid "Open shop"
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:77
+#: .\pretix_furbadge\bot\commands.py:76
 msgid "No connected orders yet."
 msgstr ""
 
@@ -57,91 +57,86 @@ msgid ""
 "Your orders:\n"
 "{orders}\n"
 "\n"
-"Use /order <number> to open one."
+"Use /order <number or ID> to open one."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:99 .\pretix_furbadge\bot\commands.py:202
-msgid "You have no connected orders yet."
+#: .\pretix_furbadge\bot\commands.py:117
+msgid "Invalid order number or ID. Use /orders to see the list."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:106
-msgid "Invalid order number. Use /orders to see the list."
-msgstr ""
-
-#: .\pretix_furbadge\bot\commands.py:128
+#: .\pretix_furbadge\bot\commands.py:136
 #, python-brace-format
 msgid "Manage order {order_code}"
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:132 .\pretix_furbadge\bot\commands.py:215
-msgid "Order could not be found."
-msgstr ""
-
-#: .\pretix_furbadge\bot\commands.py:138
+#: .\pretix_furbadge\bot\commands.py:144
 msgid "No badges yet."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:143
+#: .\pretix_furbadge\bot\commands.py:149
 #, python-brace-format
 msgid "order {order_code}"
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:147
+#: .\pretix_furbadge\bot\commands.py:154
 #, python-brace-format
 msgid ""
 "Your badges:\n"
 "{badges}\n"
 "\n"
-"Use /badge <number> to edit one."
+"Use /badge <number or Order ID> to edit one."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:159
-msgid "You have no badges."
+#: .\pretix_furbadge\bot\commands.py:204
+#, python-brace-format
+msgid ""
+"Order {order_code} has multiple badges. Please specify the badge (e.g., "
+"{order_code}-1)."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:166
-msgid "Invalid badge number. Use /badges to see the list."
+#: .\pretix_furbadge\bot\commands.py:213
+msgid "Invalid badge number or Order ID. Use /badges to see the list."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:189
+#: .\pretix_furbadge\bot\commands.py:233
 #, python-brace-format
 msgid "Edit your badge for order {order_code}"
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:208
-msgid "Invalid number. Use /orders to see the list."
+#: .\pretix_furbadge\bot\commands.py:264
+msgid "Invalid number or Order ID. Use /orders to see the list."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:225
+#: .\pretix_furbadge\bot\commands.py:276
 #, python-brace-format
 msgid ""
 "Tickets are not yet available for order {order_code} (status: {status})."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:237
+#: .\pretix_furbadge\bot\commands.py:287
 msgid "No ticket items found for this order."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:267
+#: .\pretix_furbadge\bot\commands.py:311
 #, python-brace-format
 msgid "Ticket QR Code — {order_code} ({item})"
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:277
+#: .\pretix_furbadge\bot\commands.py:321
 #, python-brace-format
 msgid ""
 "An error occurred while generating the QR code photo for order {order_code}. "
 "Please try again later."
 msgstr ""
 
-#: .\pretix_furbadge\bot\commands.py:285
+#: .\pretix_furbadge\bot\commands.py:329
 msgid ""
 "/shop — open the shop\n"
 "/orders — list your orders\n"
-"/order <n> — manage an order\n"
+"/order <n or ID> — manage an order\n"
 "/badges — list your badges\n"
-"/badge <n> — edit a badge\n"
-"/qr <n> — get the ticket/QR for an order"
+"/badge <n or ID> — edit a badge\n"
+"/qr <n or ID> — get the ticket/QR for an order"
 msgstr ""
 
 #: .\pretix_furbadge\exporter.py:38
@@ -305,29 +300,44 @@ msgstr ""
 msgid "Text displayed next to the consent checkbox on the order page."
 msgstr ""
 
-#: .\pretix_furbadge\forms.py:446 .\pretix_furbadge\models.py:284
+#: .\pretix_furbadge\forms.py:404
+#, python-format
+msgid "Connected via Telegram as %(name)s."
+msgstr ""
+
+#: .\pretix_furbadge\forms.py:405
+#, python-format
+msgid "Not you? <a href=\"%(url)s\">Disconnect</a>."
+msgstr ""
+
+#: .\pretix_furbadge\forms.py:417
+#, python-format
+msgid "or <a href=\"%(url)s\">connect via Telegram</a> to make email optional"
+msgstr ""
+
+#: .\pretix_furbadge\forms.py:455 .\pretix_furbadge\models.py:284
 msgid "Email only"
 msgstr ""
 
-#: .\pretix_furbadge\forms.py:447 .\pretix_furbadge\models.py:285
+#: .\pretix_furbadge\forms.py:456 .\pretix_furbadge\models.py:285
 msgid "Email and Telegram"
 msgstr ""
 
-#: .\pretix_furbadge\forms.py:448 .\pretix_furbadge\models.py:286
+#: .\pretix_furbadge\forms.py:457 .\pretix_furbadge\models.py:286
 msgid "Telegram only"
 msgstr ""
 
-#: .\pretix_furbadge\forms.py:456
+#: .\pretix_furbadge\forms.py:465
 msgid "Without an email address, only Telegram delivery is available."
 msgstr ""
 
-#: .\pretix_furbadge\frontend_views.py:819
+#: .\pretix_furbadge\frontend_views.py:815
 msgid ""
 "You haven't connected Telegram to an order yet — use the \"Connect "
 "Telegram\" button on your order page."
 msgstr ""
 
-#: .\pretix_furbadge\frontend_views.py:827
+#: .\pretix_furbadge\frontend_views.py:823
 msgid "Unknown command. Try /help."
 msgstr ""
 
@@ -474,7 +484,7 @@ msgstr ""
 msgid "Are you sure you want to disconnect your Telegram account?"
 msgstr ""
 
-#: .\pretix_furbadge\signals.py:507 .\pretix_furbadge\signals.py:530
+#: .\pretix_furbadge\signals.py:480 .\pretix_furbadge\signals.py:503
 msgid "Email"
 msgstr ""
 
@@ -722,6 +732,10 @@ msgstr ""
 
 #: .\pretix_furbadge\templates\pretix_furbadge\telegram_order_admin.html:39
 msgid "Save preferences"
+msgstr ""
+
+#: .\pretix_furbadge\templates\pretix_furbadge\telegram_order_admin.html:53
+msgid "This user has no Telegram connected"
 msgstr ""
 
 #: .\pretix_furbadge\templates\pretix_furbadge\telegram_settings.html:8

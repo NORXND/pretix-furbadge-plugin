@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-05 12:21+0200\n"
-"PO-Revision-Date: 2026-07-05 10:14+0200\n"
+"POT-Creation-Date: 2026-07-07 09:23+0200\n"
+"PO-Revision-Date: 2026-07-07 03:16+0200\n"
 "Last-Translator: Norbert Dudziak <norbert.dudziak@norxnd.com>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -27,8 +27,8 @@ msgid ""
 "Badge templates for pretix with configurable avatar layouts, circular avatar "
 "rendering, and Telegram integration support."
 msgstr ""
-"Szablony identyfikatorów dla pretix z konfigurowalnym układem awatara, renderowaniem "
-"okrągłych awatarów oraz wsparciem dla integracji z Telegramem."
+"Szablony identyfikatorów dla pretix z konfigurowalnym układem awatara, "
+"renderowaniem okrągłych awatarów oraz wsparciem dla integracji z Telegramem."
 
 #: .\pretix_furbadge\badge_renderer.py:97
 msgid "Background PDF is required"
@@ -42,15 +42,15 @@ msgstr "Układ pliku PDF z tłem nie zawiera czytelnych stron."
 msgid "Attendee"
 msgstr "Uczestnik"
 
-#: .\pretix_furbadge\bot\commands.py:61
+#: .\pretix_furbadge\bot\commands.py:60
 msgid "The shop is currently unavailable."
 msgstr "Sklep jest obecnie niedostępny."
 
-#: .\pretix_furbadge\bot\commands.py:71
+#: .\pretix_furbadge\bot\commands.py:70
 msgid "Open shop"
 msgstr "Otwórz sklep"
 
-#: .\pretix_furbadge\bot\commands.py:77
+#: .\pretix_furbadge\bot\commands.py:76
 msgid "No connected orders yet."
 msgstr "Brak połączonych zamówień."
 
@@ -60,86 +60,91 @@ msgid ""
 "Your orders:\n"
 "{orders}\n"
 "\n"
-"Use /order <number> to open one."
+"Use /order <number or ID> to open one."
 msgstr ""
 "Twoje zamówienia:\n"
 "{orders}\n"
 "\n"
-"Użyj /order <numer>, aby otworzyć wybrane zamówienie."
+"Użyj /order <numer lub ID>, aby otworzyć wybrane zamówienie."
 
-#: .\pretix_furbadge\bot\commands.py:99 .\pretix_furbadge\bot\commands.py:202
-msgid "You have no connected orders yet."
-msgstr "Nie masz jeszcze żadnych połączonych zamówień."
+#: .\pretix_furbadge\bot\commands.py:117
+msgid "Invalid order number or ID. Use /orders to see the list."
+msgstr ""
+"Nieprawidłowy numer zamówienia lub ID. Użyj /orders, aby wyświetlić listę."
 
-#: .\pretix_furbadge\bot\commands.py:106
-msgid "Invalid order number. Use /orders to see the list."
-msgstr "Nieprawidłowy numer zamówienia. Użyj /orders, aby wyświetlić listę."
-
-#: .\pretix_furbadge\bot\commands.py:128
+#: .\pretix_furbadge\bot\commands.py:136
 #, python-brace-format
 msgid "Manage order {order_code}"
 msgstr "Zarządzaj zamówieniem {order_code}"
 
-#: .\pretix_furbadge\bot\commands.py:132 .\pretix_furbadge\bot\commands.py:215
-msgid "Order could not be found."
-msgstr "Nie znaleziono zamówienia."
-
-#: .\pretix_furbadge\bot\commands.py:138
+#: .\pretix_furbadge\bot\commands.py:144
 msgid "No badges yet."
 msgstr "Brak identyfikatorów."
 
-#: .\pretix_furbadge\bot\commands.py:143
+#: .\pretix_furbadge\bot\commands.py:149
 #, python-brace-format
 msgid "order {order_code}"
 msgstr "zamówienie {order_code}"
 
-#: .\pretix_furbadge\bot\commands.py:147
+#: .\pretix_furbadge\bot\commands.py:154
 #, python-brace-format
 msgid ""
 "Your badges:\n"
 "{badges}\n"
 "\n"
-"Use /badge <number> to edit one."
+"Use /badge <number or Order ID> to edit one."
 msgstr ""
 "Twoje identyfikatory:\n"
 "{badges}\n"
 "\n"
-"Użyj /badge <numer>, aby edytować wybrany identyfikator."
+"Użyj /badge <numer lub ID zamówienia>, aby edytować wybrany identyfikator."
 
-#: .\pretix_furbadge\bot\commands.py:159
-msgid "You have no badges."
-msgstr "Nie masz żadnych identyfikatorów."
+#: .\pretix_furbadge\bot\commands.py:204
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "Order {order_code} has multiple badges. Please use the specific badge "
+#| "number from the /badges list."
+msgid ""
+"Order {order_code} has multiple badges. Please specify the badge (e.g., "
+"{order_code}-1)."
+msgstr ""
+"Zamówienie {order_code} zawiera kilka identyfikatorów. Proszę użyć "
+"konkretnego numeru identyfikatora z listy /badges."
 
-#: .\pretix_furbadge\bot\commands.py:166
-msgid "Invalid badge number. Use /badges to see the list."
-msgstr "Nieprawidłowy numer identyfikatora. Użyj /badges, aby wyświetlić listę."
+#: .\pretix_furbadge\bot\commands.py:213
+msgid "Invalid badge number or Order ID. Use /badges to see the list."
+msgstr ""
+"Nieprawidłowy numer identyfikatora lub ID zamówienia. Użyj /badges, aby "
+"wyświetlić listę."
 
-#: .\pretix_furbadge\bot\commands.py:189
+#: .\pretix_furbadge\bot\commands.py:233
 #, python-brace-format
 msgid "Edit your badge for order {order_code}"
 msgstr "Edytuj swój identyfikator dla zamówienia {order_code}"
 
-#: .\pretix_furbadge\bot\commands.py:208
-msgid "Invalid number. Use /orders to see the list."
-msgstr "Nieprawidłowy numer. Użyj /orders, aby wyświetlić listę."
+#: .\pretix_furbadge\bot\commands.py:264
+msgid "Invalid number or Order ID. Use /orders to see the list."
+msgstr ""
+"Nieprawidłowy numer lub ID zamówienia. Użyj /orders, aby wyświetlić listę."
 
-#: .\pretix_furbadge\bot\commands.py:225
+#: .\pretix_furbadge\bot\commands.py:276
 #, python-brace-format
 msgid ""
 "Tickets are not yet available for order {order_code} (status: {status})."
 msgstr ""
-"Bilety dla zamówienia {order_code} nie są jeszcze dostępne (status: {status})."
+"Bilety dla zamówienia {order_code} nie są jeszcze dostępne (status: "
+"{status})."
 
-#: .\pretix_furbadge\bot\commands.py:237
+#: .\pretix_furbadge\bot\commands.py:287
 msgid "No ticket items found for this order."
 msgstr "Nie znaleziono pozycji biletowych dla tego zamówienia."
 
-#: .\pretix_furbadge\bot\commands.py:267
+#: .\pretix_furbadge\bot\commands.py:311
 #, python-brace-format
 msgid "Ticket QR Code — {order_code} ({item})"
 msgstr "Kod QR biletu — {order_code} ({item})"
 
-#: .\pretix_furbadge\bot\commands.py:277
+#: .\pretix_furbadge\bot\commands.py:321
 #, python-brace-format
 msgid ""
 "An error occurred while generating the QR code photo for order {order_code}. "
@@ -148,21 +153,21 @@ msgstr ""
 "Wystąpił błąd podczas generowania kodu QR dla zamówienia {order_code}. "
 "Proszę spróbować ponownie później."
 
-#: .\pretix_furbadge\bot\commands.py:285
+#: .\pretix_furbadge\bot\commands.py:329
 msgid ""
 "/shop — open the shop\n"
 "/orders — list your orders\n"
-"/order <n> — manage an order\n"
+"/order <n or ID> — manage an order\n"
 "/badges — list your badges\n"
-"/badge <n> — edit a badge\n"
-"/qr <n> — get the ticket/QR for an order"
+"/badge <n or ID> — edit a badge\n"
+"/qr <n or ID> — get the ticket/QR for an order"
 msgstr ""
 "/shop — otwórz sklep\n"
 "/orders — lista Twoich zamówień\n"
-"/order <n> — zarządzaj zamówieniem\n"
+"/order <n lub ID> — zarządzaj zamówieniem\n"
 "/badges — lista Twoich identyfikatorów\n"
-"/badge <n> — edytuj identyfikator\n"
-"/qr <n> — pobierz bilet/kod QR dla zamówienia"
+"/badge <n lub ID> — edytuj identyfikator\n"
+"/qr <n lub ID> — pobierz bilet/kod QR dla zamówienia"
 
 #: .\pretix_furbadge\exporter.py:38
 msgid "Badge PDFs (ZIP)"
@@ -228,7 +233,9 @@ msgstr "Zezwalaj na edycję identyfikatora"
 
 #: .\pretix_furbadge\forms.py:224
 msgid "If enabled, attendees can edit their badge data."
-msgstr "Jeśli opcja jest włączona, uczestnicy mogą edytować dane swojego identyfikatora."
+msgstr ""
+"Jeśli opcja jest włączona, uczestnicy mogą edytować dane swojego "
+"identyfikatora."
 
 #: .\pretix_furbadge\forms.py:228
 msgid "Badge Edit Deadline"
@@ -252,8 +259,8 @@ msgid ""
 "not selected, the badge text will be an optional preference."
 msgstr ""
 "Wybierz pytanie z pretix, z którego pobierany będzie pseudonim uczestnika na "
-"identyfikator. Jeśli nie zostanie wybrane, tekst na identyfikatorze będzie opcjonalnym polem "
-"ustawień."
+"identyfikator. Jeśli nie zostanie wybrane, tekst na identyfikatorze będzie "
+"opcjonalnym polem ustawień."
 
 #: .\pretix_furbadge\forms.py:250
 msgid "Question for Public List Visibility"
@@ -264,8 +271,8 @@ msgid ""
 "Select the pretix question used to decide whether the attendee should appear "
 "in the public attendee list."
 msgstr ""
-"Wybierz pytanie z pretix służące do decydowania, czy uczestnik "
-"ma się pojawić na publicznej liście uczestników."
+"Wybierz pytanie z pretix służące do decydowania, czy uczestnik ma się "
+"pojawić na publicznej liście uczestników."
 
 #: .\pretix_furbadge\forms.py:259
 msgid "Default Avatar"
@@ -302,7 +309,8 @@ msgstr "Nazwa użytkownika bota (bez @)"
 #: .\pretix_furbadge\forms.py:337
 msgid "Used to build deep links in web_app buttons. Ex: 'YourEventBot'."
 msgstr ""
-"Służy do tworzenia linków bezpośrednich (deep links) w przyciskach web_app. Np.: 'TwójEventBot'."
+"Służy do tworzenia linków bezpośrednich (deep links) w przyciskach web_app. "
+"Np.: 'TwójEventBot'."
 
 #: .\pretix_furbadge\forms.py:341
 msgid "OIDC client ID"
@@ -327,7 +335,8 @@ msgstr "Tajny token webhooka"
 #: .\pretix_furbadge\forms.py:358
 msgid "Pass this as secret_token when setting the webhook URL via BotFather."
 msgstr ""
-"Przekaż tę wartość jako secret_token podczas ustawiania adresu URL webhooka przez BotFather."
+"Przekaż tę wartość jako secret_token podczas ustawiania adresu URL webhooka "
+"przez BotFather."
 
 #: .\pretix_furbadge\forms.py:363
 msgid "Consent checkbox text"
@@ -337,23 +346,40 @@ msgstr "Tekst pola wyboru zgody"
 msgid "Text displayed next to the consent checkbox on the order page."
 msgstr "Tekst wyświetlany obok pola wyboru zgody na stronie zamówienia."
 
-#: .\pretix_furbadge\forms.py:446 .\pretix_furbadge\models.py:284
+#: .\pretix_furbadge\forms.py:404
+#, python-format
+msgid "Connected via Telegram as %(name)s."
+msgstr "Połączono przez Telegram jako %(name)s."
+
+#: .\pretix_furbadge\forms.py:405
+#, python-format
+msgid "Not you? <a href=\"%(url)s\">Disconnect</a>."
+msgstr "To nie Ty? <a href=\"%(url)s\">Odłącz</a>."
+
+#: .\pretix_furbadge\forms.py:417
+#, python-format
+msgid "or <a href=\"%(url)s\">connect via Telegram</a> to make email optional"
+msgstr ""
+"lub <a href=\"%(url)s\">połącz przez Telegram</a>, aby adres e-mail był "
+"opcjonalny"
+
+#: .\pretix_furbadge\forms.py:455 .\pretix_furbadge\models.py:284
 msgid "Email only"
 msgstr "Tylko e-mail"
 
-#: .\pretix_furbadge\forms.py:447 .\pretix_furbadge\models.py:285
+#: .\pretix_furbadge\forms.py:456 .\pretix_furbadge\models.py:285
 msgid "Email and Telegram"
 msgstr "E-mail i Telegram"
 
-#: .\pretix_furbadge\forms.py:448 .\pretix_furbadge\models.py:286
+#: .\pretix_furbadge\forms.py:457 .\pretix_furbadge\models.py:286
 msgid "Telegram only"
 msgstr "Tylko Telegram"
 
-#: .\pretix_furbadge\forms.py:456
+#: .\pretix_furbadge\forms.py:465
 msgid "Without an email address, only Telegram delivery is available."
 msgstr "Bez adresu e-mail dostępna jest wyłącznie dostawa przez Telegram."
 
-#: .\pretix_furbadge\frontend_views.py:819
+#: .\pretix_furbadge\frontend_views.py:815
 msgid ""
 "You haven't connected Telegram to an order yet — use the \"Connect "
 "Telegram\" button on your order page."
@@ -361,7 +387,7 @@ msgstr ""
 "Nie połączyłeś jeszcze Telegrama z zamówieniem — użyj przycisku „Połącz z "
 "Telegramem” na stronie swojego zamówienia."
 
-#: .\pretix_furbadge\frontend_views.py:827
+#: .\pretix_furbadge\frontend_views.py:823
 msgid "Unknown command. Try /help."
 msgstr "Nieznana komenda. Spróbuj /help."
 
@@ -442,7 +468,8 @@ msgstr "Kształt awatara"
 #: .\pretix_furbadge\models.py:122
 msgid "Choose whether the badge avatar is rendered as a rectangle or a circle."
 msgstr ""
-"Wybierz, czy awatar na identyfikatorze ma być renderowany jako prostokąt, czy koło."
+"Wybierz, czy awatar na identyfikatorze ma być renderowany jako prostokąt, "
+"czy koło."
 
 #: .\pretix_furbadge\models.py:131
 msgid "Text Position X (mm)"
@@ -499,8 +526,8 @@ msgid ""
 "Choose how outgoing emails should be delivered when this order is connected "
 "to Telegram."
 msgstr ""
-"Wybierz, w jaki sposób mają być dostarczane wychodzące wiadomości e-mail, gdy to "
-"zamówienie jest połączone z Telegramem."
+"Wybierz, w jaki sposób mają być dostarczane wychodzące wiadomości e-mail, "
+"gdy to zamówienie jest połączone z Telegramem."
 
 #: .\pretix_furbadge\signals.py:73 .\pretix_furbadge\signals.py:105
 msgid "Furry Badges"
@@ -511,7 +538,7 @@ msgstr "Furry Badges"
 msgid "Are you sure you want to disconnect your Telegram account?"
 msgstr "Czy na pewno chcesz odłączyć swoje konto Telegram?"
 
-#: .\pretix_furbadge\signals.py:507 .\pretix_furbadge\signals.py:530
+#: .\pretix_furbadge\signals.py:480 .\pretix_furbadge\signals.py:503
 msgid "Email"
 msgstr "E-mail"
 
@@ -533,7 +560,8 @@ msgid ""
 "but no changes can be saved."
 msgstr ""
 "Edycja identyfikatorów jest obecnie zablokowana dla tego zamówienia. Możesz "
-"zobaczyć podgląd swojego identyfikatora, ale żadne zmiany nie zostaną zapisane."
+"zobaczyć podgląd swojego identyfikatora, ale żadne zmiany nie zostaną "
+"zapisane."
 
 #: .\pretix_furbadge\templates\pretix_furbadge\badge_edit.html:37
 msgid "No avatar"
@@ -633,21 +661,25 @@ msgid ""
 "If you select a badge type here, this product will require attendees to "
 "provide their nickname and avatar, and generate a badge PDF."
 msgstr ""
-"Jeśli wybierzesz tutaj typ identyfikatora, zakup tego produktu będzie wymagał od "
-"uczestników podania swojego pseudonimu oraz awatara, a system wygeneruje plik PDF identyfikatora."
+"Jeśli wybierzesz tutaj typ identyfikatora, zakup tego produktu będzie "
+"wymagał od uczestników podania swojego pseudonimu oraz awatara, a system "
+"wygeneruje plik PDF identyfikatora."
 
 #: .\pretix_furbadge\templates\pretix_furbadge\link_delete.html:5
 msgid "Delete Product Link"
 msgstr "Usuń powiązanie produktu"
 
 #: .\pretix_furbadge\templates\pretix_furbadge\link_delete.html:8
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Are you sure you want to remove the link\n"
+#| "   between <strong>%(item)s</strong> and <strong>%(type)s</strong>?"
 msgid ""
 "Are you sure you want to remove the link\n"
 "        between <strong>%(item)s</strong> and <strong>%(type)s</strong>?"
 msgstr ""
 "Czy na pewno chcesz usunąć powiązanie\n"
-"        między <strong>%(item)s</strong> a <strong>%(type)s</strong>?"
+"   między <strong>%(item)s</strong> a <strong>%(type)s</strong>?"
 
 #: .\pretix_furbadge\templates\pretix_furbadge\order_info.html:7
 msgid "Badges"
@@ -658,8 +690,8 @@ msgid ""
 "Some tickets in your order include custom badges. Please configure them "
 "below."
 msgstr ""
-"Niektóre bilety w Twoim zamówieniu zawierają niestandardowe identyfikatory. Proszę "
-"skonfigurować je poniżej."
+"Niektóre bilety w Twoim zamówieniu zawierają niestandardowe identyfikatory. "
+"Proszę skonfigurować je poniżej."
 
 #: .\pretix_furbadge\templates\pretix_furbadge\order_info.html:16
 #, python-format
@@ -760,8 +792,8 @@ msgstr ""
 "\n"
 "                    Jeśli chcesz zalogować się przez Telegram, kliknij <a "
 "href=\"%(url)s\">tutaj</a>. \n"
-"                    Jeśli chcesz użyć adresu e-mail (lub korzystać zarówno z e-maila, jak "
-"i Telegrama), kliknij kontynuuj.\n"
+"                    Jeśli chcesz użyć adresu e-mail (lub korzystać zarówno z "
+"e-maila, jak i Telegrama), kliknij kontynuuj.\n"
 "                "
 
 #: .\pretix_furbadge\templates\pretix_furbadge\telegram_login_step.html:20
@@ -780,6 +812,10 @@ msgstr "Odłącz"
 msgid "Save preferences"
 msgstr "Zapisz preferencje"
 
+#: .\pretix_furbadge\templates\pretix_furbadge\telegram_order_admin.html:53
+msgid "This user has no Telegram connected"
+msgstr "Ten użytkownik nie ma połączonego konta Telegram"
+
 #: .\pretix_furbadge\templates\pretix_furbadge\telegram_settings.html:8
 msgid "Telegram Settings"
 msgstr "Ustawienia Telegrama"
@@ -792,7 +828,8 @@ msgstr "Usuń typ identyfikatora"
 #, python-format
 msgid ""
 "Are you sure you want to delete the badge type <strong>%(name)s</strong>?"
-msgstr "Czy na pewno chcesz usunąć typ identyfikatora <strong>%(name)s</strong>?"
+msgstr ""
+"Czy na pewno chcesz usunąć typ identyfikatora <strong>%(name)s</strong>?"
 
 #: .\pretix_furbadge\templates\pretix_furbadge\type_form.html:6
 msgid "Edit Badge Type"
@@ -814,33 +851,42 @@ msgstr "Tak"
 msgid "No"
 msgstr "Nie"
 
+#~ msgid "You have no connected orders yet."
+#~ msgstr "Nie masz jeszcze żadnych połączonych zamówień."
+
+#~ msgid "Order could not be found."
+#~ msgstr "Nie znaleziono zamówienia."
+
+#~ msgid "You have no badges."
+#~ msgstr "Nie masz żadnych identyfikatorów."
+
 #, python-brace-format
 #~ msgid ""
 #~ "Badge editing for {attendee} is currently unavailable here. Please manage "
 #~ "it via your order details."
 #~ msgstr ""
-#~ "Edycja identyfikatora dla {attendee} jest tutaj obecnie niedostępna. Proszę "
-#~ "zarządzać nim poprzez szczegóły zamówienia."
+#~ "Edycja identyfikatora dla {attendee} jest tutaj obecnie niedostępna. "
+#~ "Proszę zarządzać nim poprzez szczegóły zamówienia."
 
 #~ msgid "Only available when Telegram is not connected yet."
 #~ msgstr "Dostępne tylko, gdy Telegram nie jest jeszcze połączony."
 
 #~ msgid "Forward all outgoing emails to linked Telegram users"
 #~ msgstr ""
-#~ "Przekazuj wszystkie wychodzące wiadomości e-mail do połączonych użytkowników "
-#~ "Telegrama"
+#~ "Przekazuj wszystkie wychodzące wiadomości e-mail do połączonych "
+#~ "użytkowników Telegrama"
 
 #~ msgid ""
 #~ "Enable automatic forwarding of pretix emails to connected Telegram "
 #~ "identities."
 #~ msgstr ""
-#~ "Włącz automatyczne przekazywanie e-maili z pretix do połączonych "
-#~ "kont na Telegramie."
+#~ "Włącz automatyczne przekazywanie e-maili z pretix do połączonych kont na "
+#~ "Telegramie."
 
 #~ msgid "Telegram username is managed from the connected Telegram profile."
 #~ msgstr ""
-#~ "Nazwa użytkownika na Telegramie jest zarządzana z poziomu połączonego profilu "
-#~ "Telegram."
+#~ "Nazwa użytkownika na Telegramie jest zarządzana z poziomu połączonego "
+#~ "profilu Telegram."
 
 #~ msgid "Telegram Username"
 #~ msgstr "Nazwa użytkownika Telegram"
