@@ -313,10 +313,12 @@ class TelegramConnectCallbackView(EventViewMixin, View):
         )
 
         telegram_user_id = str(claims["id"])
-        order = Order.objects.get(pk=session_data["order_pk"])
+        if session_data.get("event_slug") != request.event.slug:
+            return HttpResponseBadRequest("Event mismatch")
+        order = get_object_or_404(Order, pk=session_data["order_pk"], event=request.event)
 
         identity, _created = TelegramIdentity.objects.get_or_create(
-            event=request.event,
+            event=order.event,
             telegram_user_id=telegram_user_id,
         )
         identity.username = claims.get("preferred_username")
@@ -328,7 +330,7 @@ class TelegramConnectCallbackView(EventViewMixin, View):
         identity.save()
 
         TelegramOrderLink.objects.get_or_create(
-            identity=identity, order=order, event=request.event
+            identity=identity, order=order, event=order.event
         )
 
         url = eventreverse(
