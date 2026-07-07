@@ -108,9 +108,8 @@ def handle_order(event, identity, chat_id, args, request):
         order = Order.objects.filter(pk=order_pk).first()
 
     if not order:
-        # Fallback: bypass the connected list and search the event globally
-        order = Order.objects.filter(event=event, code__iexact=code_query).first()
-
+        # Allow lookup by code, but only within the user's connected orders
+        order = Order.objects.filter(pk__in=order_ids, code__iexact=code_query).first()
     if not order:
         tg_send_message(
             chat_id,
