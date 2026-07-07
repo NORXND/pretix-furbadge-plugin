@@ -182,29 +182,29 @@ def handle_badge(event, identity, chat_id, args, request):
         # Allow lookup by code, but only within the user's connected orders
         order_ids = _numbered_orders(identity)
         order = Order.objects.filter(pk__in=order_ids, code__iexact=code_part).first()
-            badge_positions = list(
-                OrderPosition.objects.filter(
-                    order=order, id__in=BadgeData.objects.values("order_position_id")
-                )
+        badge_positions = list(
+            OrderPosition.objects.filter(
+                order=order, id__in=BadgeData.objects.values("order_position_id")
             )
+        )
 
-            if len(badge_positions) == 1:
-                position = badge_positions[0]
-            elif len(badge_positions) > 1:
-                if pos_part:
-                    for p in badge_positions:
-                        if str(p.positionid) == pos_part:
-                            position = p
-                            break
-                if not position:
-                    tg_send_message(
-                        chat_id,
-                        _(
-                            "Order {order_code} has multiple badges. Please specify the badge (e.g., {order_code}-1)."
-                        ).format(order_code=code_part),
-                        event=event,
-                    )
-                    return
+        if len(badge_positions) == 1:
+            position = badge_positions[0]
+        elif len(badge_positions) > 1:
+            if pos_part:
+                for p in badge_positions:
+                    if str(p.positionid) == pos_part:
+                        position = p
+                        break
+            if not position:
+                tg_send_message(
+                    chat_id,
+                    _(
+                        "Order {order_code} has multiple badges. Please specify the badge (e.g., {order_code}-1)."
+                    ).format(order_code=code_part),
+                    event=event,
+                )
+                return
 
     if not position:
         tg_send_message(
