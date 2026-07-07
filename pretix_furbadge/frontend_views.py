@@ -12,13 +12,13 @@ Same as pretix_furbadge.views, but for the presale frontend views.
 
 from __future__ import annotations
 
-from logging import Logger
 from typing import TYPE_CHECKING, Any, Optional
 
 import base64
 import hashlib
 import json
 import jwt
+import logging
 import requests  # type: ignore[import-untyped]
 import secrets
 from django.conf import settings
@@ -41,15 +41,14 @@ from django.views.generic import TemplateView, View
 from isodate import parse_datetime
 from pretix.base.models import Event, Order, OrderPosition
 from pretix.presale.views import EventViewMixin, eventreverse
-from .bot.telegram_api import tg_send_message
-
-from pretix_furbadge.bot.commands import COMMANDS, get_identity
-
 from pretix.presale.views.cart import (
     cart_session,
 )
 
+from pretix_furbadge.bot.commands import COMMANDS, get_identity
+
 from .badge_renderer import BadgeRenderer
+from .bot.telegram_api import tg_send_message
 from .forms import BadgeDataForm, TelegramOrderEmailAddition, TelegramPreferencesForm
 from .models import BadgeData, ProductBadgeLink, TelegramIdentity, TelegramOrderLink
 
@@ -178,6 +177,7 @@ class TelegramOrderMixin(EventViewMixin):
     """
     Helper mixin for managing view with orders.
     """
+
     def dispatch(self, request: Any, *args: Any, **kwargs: Any):
         self.order = get_object_or_404(
             Order, event=request.event, code=kwargs.get("order")
@@ -191,6 +191,7 @@ class TelegramConnectStartView(TelegramOrderMixin, View):
     """
     This is a view that redirects user to Telegram's OAuth2 authorization endpoint to initiate the connection process.
     """
+
     def get(self, request, *args, **kwargs):
         if request.GET.get("consent") != "1":
             return HttpResponseBadRequest("Consent checkbox must be checked")
@@ -234,6 +235,7 @@ class TelegramDisconnectView(TelegramOrderMixin, View):
     """
     This is a view that disconnects a Telegram identity from an order. It deletes the corresponding TelegramOrderLink.
     """
+
     def get(self, request, *args, **kwargs):
         link = TelegramOrderLink.objects.filter(
             order=self.order, event=request.event
@@ -257,6 +259,7 @@ class TelegramConnectCallbackView(EventViewMixin, View):
     """
     This is the view called FROM Telegram on user login - it links the account to the order.
     """
+
     def get(self, request, *args, **kwargs):
         session_data = request.session.pop(SESSION_KEY, None)
         if not session_data:
@@ -315,7 +318,9 @@ class TelegramConnectCallbackView(EventViewMixin, View):
         telegram_user_id = str(claims["id"])
         if session_data.get("event_slug") != request.event.slug:
             return HttpResponseBadRequest("Event mismatch")
-        order = get_object_or_404(Order, pk=session_data["order_pk"], event=request.event)
+        order = get_object_or_404(
+            Order, pk=session_data["order_pk"], event=request.event
+        )
 
         identity, _created = TelegramIdentity.objects.get_or_create(
             event=order.event,
@@ -349,6 +354,7 @@ class TelegramPreferencesView(EventViewMixin, View):
     """
     This view allows to update the telegram preferences.
     """
+
     def post(self, request: PretixRequest, *args, **kwargs) -> HttpResponse:
         order = get_object_or_404(
             Order,
@@ -626,10 +632,11 @@ class PublicAttendeeListView(EventViewMixin, TemplateView):
                 # Evaluate the prefetched query set in memory
                 active_link = next(
                     (
-                        link for link in bd.order_position.order.telegram_links.all()
+                        link
+                        for link in bd.order_position.order.telegram_links.all()
                         if link.public_share
                     ),
-                    None
+                    None,
                 )
                 if active_link and active_link.identity.username:
                     data["telegram"] = active_link.identity.username
@@ -682,7 +689,7 @@ class TelegramCheckoutCallbackView(EventViewMixin, View):
     Same as TelegramConnectCallbackView, but stores the result against the cart session instead of an existing Order,
     since no Order exists yet at this point in checkout.
     """
-    
+
     def get(self, request, *args, **kwargs):
         session_data = request.session.pop(SESSION_KEY, None)
         if (
@@ -690,10 +697,10 @@ class TelegramCheckoutCallbackView(EventViewMixin, View):
             or request.GET.get("state") != session_data.get("state")
             or session_data.get("event_pk") != request.event.id
         ):
-            return HttpResponseBadRequest("Invalid or expired Telegram login attempt")
-            return HttpResponseBadRequest(
+            logging.getLogger(__name__).exception(
                 f"Telegram login failed: {request.GET['error']}"
             )
+            return HttpResponseBadRequest("Invalid or expired Telegram login attempt")
 
         client_id = request.event.settings.get(
             "furbadge_telegram_client_id", as_type=str
@@ -734,14 +741,16 @@ class TelegramCheckoutCallbackView(EventViewMixin, View):
 
         telegram_user_id = str(claims["id"])
 
-        pretix_cart_session = cart_session(request)
-        pretix_cart_session["furbadge_telegram_checkout"] = {  # pyright: ignore[reportOptionalSubscript]
-            "verified": True,
-            "telegram_user_id": telegram_user_id,
-            "username": claims.get("preferred_username"),
-            "first_name": claims.get("given_name") or claims.get("name"),
-            "chat_id": telegram_user_id,
-        }
+        pretix_cart_session = cart_session(request, True)
+        pretix_cart_session["furbadge_telegram_checkout"] = ( # pyright: ignore[reportOptionalSubscript]
+            {
+                "verified": True,
+                "telegram_user_id": telegram_user_id,
+                "username": claims.get("preferred_username"),
+                "first_name": claims.get("given_name") or claims.get("name"),
+                "chat_id": telegram_user_id,
+            }
+        )
 
         return_url = reverse(
             "presale:event.checkout",
@@ -760,9 +769,12 @@ class TelegramCheckoutDisconnectView(View):
     Same as TelegramDisconnectView, but removes the Telegram connection from the cart session instead of an existing Order,
     since no Order exists yet at this point in checkout.
     """
+
     def get(self, request, *args, **kwargs):
-        pretix_cart_session = cart_session(request)
-        pretix_cart_session["furbadge_telegram_checkout"] = {} # pyright: ignore[reportOptionalSubscript]
+        pretix_cart_session = cart_session(request, True)
+        pretix_cart_session["furbadge_telegram_checkout"] = ( # pyright: ignore[reportOptionalSubscript]
+            {}
+        )
 
         event = request.event
         return_url = reverse(
@@ -779,7 +791,7 @@ class TelegramCheckoutDisconnectView(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class TelegramWebhookView(EventViewMixin, View):
     """
-    Webhook endpoint for receiving Telegram bot updates. This view processes incoming messages and commands from users, 
+    Webhook endpoint for receiving Telegram bot updates. This view processes incoming messages and commands from users,
     linking them to their orders if applicable.
     """
 
@@ -817,8 +829,10 @@ class TelegramWebhookView(EventViewMixin, View):
         if not identity and command != "start":
             tg_send_message(
                 chat_id,
-                _("You haven't connected Telegram to an order yet — "
-                'use the "Connect Telegram" button on your order page.'),
+                _(
+                    "You haven't connected Telegram to an order yet — "
+                    'use the "Connect Telegram" button on your order page.'
+                ),
                 event=event,
             )
             return HttpResponse(status=200)
@@ -831,7 +845,7 @@ class TelegramWebhookView(EventViewMixin, View):
         try:
             handler(event, identity, chat_id, args, request)
         except Exception:
-            Logger.exception(
+            logging.getLogger(__name__).exception(
                 "Error handling Telegram command %s from %s", command, from_id
             )
 
