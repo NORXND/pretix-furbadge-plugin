@@ -35,7 +35,7 @@ class BadgePDFExporter(BaseExporter):
     """
 
     identifier: Literal["furbadge_pdf"] = "furbadge_pdf"
-    verbose_name: StrPromise = _("Badge PDFs (ZIP)")
+    verbose_name: 'StrPromise' = _("Badge PDFs (ZIP)")
 
     @property
     def export_form_fields(self) -> OrderedDict[str, forms.Field]:

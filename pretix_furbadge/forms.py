@@ -188,7 +188,7 @@ class ProductBadgeLinkForm(forms.ModelForm):
     or :class:`pretix_furbadge.views.ProductBadgeLinkUpdateView` for usage in views.
     """
 
-    title: StrPromise
+    title: 'StrPromise'
     template: str
     item: forms.ModelChoiceField[Item] = forms.ModelChoiceField(
         queryset=Item.objects.none(),
