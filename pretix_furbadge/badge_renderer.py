@@ -10,6 +10,8 @@ The core of the plugin - the badge renderer.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from __future__ import annotations
+
 from typing import Any, cast
 
 import io

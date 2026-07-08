@@ -12,6 +12,8 @@ Same as pretix_furbadge.views, but for the presale frontend views.
 
 from __future__ import annotations
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Optional
 
 import base64

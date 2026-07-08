@@ -10,6 +10,8 @@ All fonts around the plugin.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import subprocess
@@ -188,7 +190,7 @@ class ProductBadgeLinkForm(forms.ModelForm):
     or :class:`pretix_furbadge.views.ProductBadgeLinkUpdateView` for usage in views.
     """
 
-    title: 'StrPromise'
+    title: "StrPromise"
     template: str
     item: forms.ModelChoiceField[Item] = forms.ModelChoiceField(
         queryset=Item.objects.none(),
@@ -392,7 +394,6 @@ class TelegramLoginPromptWidget(forms.Widget):
         self.username = username
         self.first_name = first_name
         super().__init__(*args, **kwargs)
-
 
     def render(self, name, value, attrs=None, renderer=None):
         from django.utils.html import escape

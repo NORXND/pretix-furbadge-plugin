@@ -10,6 +10,8 @@ Signal handlers for the pretix_furbadge plugin.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from __future__ import annotations
+
 import logging
 from django import forms
 from django.conf import settings

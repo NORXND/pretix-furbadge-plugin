@@ -10,6 +10,8 @@ Models for the pretix_furbadge plugin.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from __future__ import annotations
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from pretix.base.models import Event, LoggedModel, Order

@@ -10,6 +10,8 @@ Admin views for all the badges stuff.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import logging

@@ -10,6 +10,8 @@ Expose badge exporter.
 :license: Apache-2.0, see LICENSE for more details.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import io
@@ -35,7 +37,7 @@ class BadgePDFExporter(BaseExporter):
     """
 
     identifier: Literal["furbadge_pdf"] = "furbadge_pdf"
-    verbose_name: 'StrPromise' = _("Badge PDFs (ZIP)")
+    verbose_name: "StrPromise" = _("Badge PDFs (ZIP)")
 
     @property
     def export_form_fields(self) -> OrderedDict[str, forms.Field]:
@@ -93,7 +95,7 @@ class BadgePDFExporter(BaseExporter):
 
                 # Try pulling from the configured pretix question answer structure
                 if nickname_question_id and badge.order_position:
-                    ans = badge.order_position.answers.filter( # pyright: ignore[reportAttributeAccessIssue]
+                    ans = badge.order_position.answers.filter(  # pyright: ignore[reportAttributeAccessIssue]
                         question_id=nickname_question_id
                     ).first()
                     if ans and ans.answer:
