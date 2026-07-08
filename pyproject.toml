@@ -46,6 +46,7 @@ requires = [
     "setuptools",
     "pretix-plugin-build",
 ]
+build-backend = "setuptools.build_meta"
 
 [project.urls]
 homepage = "https://github.com/NORXND/pretix-furbadge-plugin"
@@ -74,7 +75,7 @@ follow_imports = "skip"
 
 [tool.pyright]
 include = ["pretix_furbadge"]
-exclude = ["build", ".venv", ".git", "tests"]
+exclude = ["build", ".venv", ".git", "tests", "**/node_modules", "**/__pycache__", "**/.*"]
 typeCheckingMode = "basic"
 reportMissingImports = "none"
 reportMissingModuleSource = "none"
