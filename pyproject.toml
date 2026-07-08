@@ -33,6 +33,7 @@ dev = [
     "pytest>=8.0.0",
     "pytest-django>=4.12.0",
     "build>=1.5.0",
+    "types-setuptools>=83.0.0.20260706",
 ]
 
 [project.entry-points."pretix.plugin"]
