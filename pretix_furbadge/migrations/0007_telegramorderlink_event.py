@@ -7,8 +7,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pretix_furbadge', '0006_alter_productbadgelink_badge_type'),
-        ('pretixbase', '0302_alter_customer_locale_alter_user_locale'),
+        ("pretix_furbadge", "0006_alter_productbadgelink_badge_type"),
+        ("pretixbase", "0301_reusablemedium_remove_orderposition"),
     ]
 
     operations = [
